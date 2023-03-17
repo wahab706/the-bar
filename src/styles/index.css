@@ -1689,6 +1689,10 @@
   justify-content: center;
 }
 
+.Market-Detail-Page {
+  margin-bottom: 2rem;
+}
+
 .Market-Detail-Page
   .Polaris-FormLayout
   .Polaris-FormLayout--grouped

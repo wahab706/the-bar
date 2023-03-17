@@ -10,7 +10,7 @@ import {
   Layout,
   Card,
   Scrollable,
-  Text,
+  Avatar,
   Stack,
   ButtonGroup,
   Button,
@@ -265,7 +265,22 @@ export function MarketDetail() {
           country_id: "1",
           created_at: null,
           updated_at: null,
-          cities: [],
+          cities: [
+            {
+              id: 1,
+              name: "Phoenix",
+              state_id: "1",
+              created_at: null,
+              updated_at: null,
+            },
+            {
+              id: 2,
+              name: "Alabama",
+              state_id: "2",
+              created_at: null,
+              updated_at: null,
+            },
+          ],
         },
         {
           id: 2,
@@ -274,7 +289,22 @@ export function MarketDetail() {
           country_id: "1",
           created_at: null,
           updated_at: null,
-          cities: [],
+          cities: [
+            {
+              id: 3,
+              name: "Phoenix",
+              state_id: "3",
+              created_at: null,
+              updated_at: null,
+            },
+            {
+              id: 4,
+              name: "Alaska",
+              state_id: "4",
+              created_at: null,
+              updated_at: null,
+            },
+          ],
         },
         {
           id: 3,
@@ -287,7 +317,14 @@ export function MarketDetail() {
             {
               id: 5,
               name: "Phoenix",
-              state_id: "3",
+              state_id: "5",
+              created_at: null,
+              updated_at: null,
+            },
+            {
+              id: 6,
+              name: "Arizona",
+              state_id: "6",
               created_at: null,
               updated_at: null,
             },
@@ -311,7 +348,7 @@ export function MarketDetail() {
           updated_at: null,
           cities: [
             {
-              id: 2,
+              id: 7,
               name: "Los Angeles",
               state_id: "5",
               created_at: null,
@@ -480,100 +517,41 @@ export function MarketDetail() {
     return number;
   }
 
-  function groupCountries(array) {
-    let list = [];
-    list.push({
-      value: "Asia",
-      label: (
-        <>
-          <span>Asia</span>
-          <span>{getSelectedCountriesLength("Asia")} countries selected</span>
-        </>
-      ),
-      children: countrySelected(array, "Asia"),
+  function groupCountries(data) {
+    let arr = [];
+    data?.map((item) => {
+      let states = [];
+      if (item.states?.length > 0) {
+        item.states?.map((item2) => {
+          let cities = [];
+          if (item2.cities?.length > 0) {
+            item2.cities?.map((item3) => {
+              cities.push({
+                value: item3.id,
+                label: item3.name,
+              });
+            });
+          }
+
+          states.push({
+            value: item2.code,
+            label: item2.name,
+            children: cities,
+          });
+        });
+      }
+      arr.push({
+        value: item.code,
+        label: item.name,
+        children: states,
+      });
     });
-    list.push({
-      value: "Europe",
-      label: (
-        <>
-          <span>Europe</span>
-          <span>{getSelectedCountriesLength("Europe")} countries selected</span>
-        </>
-      ),
-      children: countrySelected(array, "Europe"),
-    });
-    list.push({
-      value: "Africa",
-      label: (
-        <>
-          <span>Africa</span>
-          <span>{getSelectedCountriesLength("Africa")} countries selected</span>
-        </>
-      ),
-      children: countrySelected(array, "Africa"),
-    });
-    list.push({
-      value: "Central_America",
-      label: (
-        <>
-          <span>Central America</span>
-          <span>
-            {getSelectedCountriesLength("Central America")} countries selected
-          </span>
-        </>
-      ),
-      children: countrySelected(array, "Central America"),
-    });
-    list.push({
-      value: "South_America",
-      label: (
-        <>
-          <span>South America</span>
-          <span>
-            {getSelectedCountriesLength("South America")} countries selected
-          </span>
-        </>
-      ),
-      children: countrySelected(array, "South America"),
-    });
-    list.push({
-      value: "North_America",
-      label: (
-        <>
-          <span>North America</span>
-          <span>
-            {getSelectedCountriesLength("North America")} countries selected
-          </span>
-        </>
-      ),
-      children: countrySelected(array, "North America"),
-    });
-    list.push({
-      value: "Oceania",
-      label: (
-        <>
-          <span>Oceania</span>
-          <span>
-            {getSelectedCountriesLength("Oceania")} countries selected
-          </span>
-        </>
-      ),
-      children: countrySelected(array, "Oceania"),
-    });
-    list.push({
-      value: "Other",
-      label: (
-        <>
-          <span>Other</span>
-          <span>{getSelectedCountriesLength("Other")} countries selected</span>
-        </>
-      ),
-      children: countrySelected(array, "Other"),
-    });
-    return list;
+
+    return arr;
   }
 
   useEffect(() => {
+    console.log("allCountries", allCountries);
     setContinentsList(groupCountries(allCountries));
   }, []);
 
@@ -701,7 +679,7 @@ export function MarketDetail() {
                 </span>
               </Card>
 
-              {/* <Card sectioned title="Country/State">
+              <Card sectioned title="Country/State">
                 <Scrollable style={{ height: "370px" }}>
                   <CheckboxTree
                     nodes={continentsList}
@@ -729,7 +707,7 @@ export function MarketDetail() {
                     }}
                   />
                 </Scrollable>
-              </Card> */}
+              </Card>
 
               <Card title="Vendor Information">
                 <Card.Section
