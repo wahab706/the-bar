@@ -268,9 +268,9 @@ export function Dashboard() {
     }
   };
 
-  useEffect(() => {
-    getDashboardData();
-  }, [currentDate]);
+  // useEffect(() => {
+  //   getDashboardData();
+  // }, [currentDate]);
 
   useEffect(() => {
     let order_stats = [];
@@ -364,7 +364,7 @@ export function Dashboard() {
 
   return (
     <div className="Dashboard-Page">
-      {loading ? (
+      {!loading ? (
         <SkeltonDashboardPage />
       ) : (
         <Page

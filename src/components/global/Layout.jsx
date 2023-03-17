@@ -6,6 +6,7 @@ import {
   ProductsMinor,
   CustomersMinor,
   OrdersMinor,
+  MarketsMajor,
 } from "@shopify/polaris-icons";
 import { AppContext } from "../providers/ContextProvider";
 import { useAuthDispatch, useAuthState } from "../providers/AuthProvider";
@@ -120,7 +121,7 @@ export function MainLayout({ children }) {
           },
           {
             label: "Markets",
-            icon: ProductsMinor,
+            icon: MarketsMajor,
             url: "/admin/markets",
             onClick: () => setLocationChange("/admin/markets"),
           },

@@ -449,11 +449,11 @@ export function Profile() {
     }
   };
 
-  useEffect(() => {
-    if (toggleLoadProfile) {
-      getProfileInfo();
-    }
-  }, [toggleLoadProfile]);
+  // useEffect(() => {
+  //   if (toggleLoadProfile) {
+  //     getProfileInfo();
+  //   }
+  // }, [toggleLoadProfile]);
 
   //============================Store Tab============================
 
@@ -618,7 +618,7 @@ export function Profile() {
 
       <Page fullWidth title="Account">
         <Tabs tabs={tabs} selected={selectedTab} onSelect={handleTabChange}>
-          {loading ? (
+          {!loading ? (
             <span>
               <Loading />
               <SkeltonTabsLayoutSecondary />
@@ -796,9 +796,8 @@ export function Profile() {
                               />
                               <br />
                               <Button
-                                submit
                                 primary
-                                onClick={updateProfileInfo}
+                                // onClick={updateProfileInfo}
                                 loading={btnLoading["updateProfile"]}
                               >
                                 Save Changes
@@ -874,7 +873,7 @@ export function Profile() {
 
                                   <Button
                                     primary
-                                    submit
+                                    // submit
                                     loading={btnLoading["updatePassword"]}
                                   >
                                     Change Password
@@ -885,7 +884,7 @@ export function Profile() {
                           </Layout.Section>
                         </Layout>
 
-                        <Layout>
+                        {/* <Layout>
                           <Layout.Section secondary>
                             <Text variant="headingMd" as="h6">
                               Timezone
@@ -915,7 +914,7 @@ export function Profile() {
                                   <Button
                                     primary
                                     loading={btnLoading["timeZone"]}
-                                    onClick={changeTimeZone}
+                                    // onClick={changeTimeZone}
                                   >
                                     Save TimeZone
                                   </Button>
@@ -930,7 +929,7 @@ export function Profile() {
                               </div>
                             </Card>
                           </Layout.Section>
-                        </Layout>
+                        </Layout> */}
                       </div>
                     );
 

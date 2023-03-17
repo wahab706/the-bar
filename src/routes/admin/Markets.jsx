@@ -142,8 +142,8 @@ export function Markets() {
   // ---------------------Index Table Code Start Here----------------------
 
   const resourceName = {
-    singular: "order",
-    plural: "orders",
+    singular: "Market",
+    plural: "Markets",
   };
 
   const rowMarkup = orders?.map(
@@ -208,7 +208,7 @@ export function Markets() {
   );
 
   const emptyStateMarkup = (
-    <EmptySearchResult title={"No Orders Found"} withIllustration />
+    <EmptySearchResult title={"No Markets Found"} withIllustration />
   );
 
   const handleClearStates = () => {
@@ -290,7 +290,7 @@ export function Markets() {
 
   return (
     <div className="Products-Page IndexTable-Page Orders-page">
-      {loading ? (
+      {!loading ? (
         <span>
           <Loading />
           <SkeltonPageForTable />

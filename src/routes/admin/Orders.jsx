@@ -26,6 +26,59 @@ import {
 import axios from "axios";
 import dateFormat from "dateformat";
 
+const ordersData = [
+  {
+    id: "1",
+    name: "#1031",
+    paymentStatus: "PAID",
+    fulfillmentStatus: "PARTIAL",
+    customerFName: "Ahmad",
+    customerLName: "Naeem",
+    quantity: "5",
+    deliveryMethod: "Cash",
+  },
+  {
+    id: "2",
+    name: "#1032",
+    paymentStatus: "PAID",
+    fulfillmentStatus: "PARTIAL",
+    customerFName: "Ahmad",
+    customerLName: "Naeem",
+    quantity: "5",
+    deliveryMethod: "Cash",
+  },
+  {
+    id: "3",
+    name: "#1033",
+    paymentStatus: "PAID",
+    fulfillmentStatus: "PARTIAL",
+    customerFName: "Ahmad",
+    customerLName: "Naeem",
+    quantity: "5",
+    deliveryMethod: "Cash",
+  },
+  {
+    id: "4",
+    name: "#1035",
+    paymentStatus: "PAID",
+    fulfillmentStatus: "PARTIAL",
+    customerFName: "Ahmad",
+    customerLName: "Naeem",
+    quantity: "5",
+    deliveryMethod: "Cash",
+  },
+  {
+    id: "5",
+    name: "#1036",
+    paymentStatus: "PAID",
+    fulfillmentStatus: "PARTIAL",
+    customerFName: "Ahmad",
+    customerLName: "Naeem",
+    quantity: "5",
+    deliveryMethod: "Cash",
+  },
+];
+
 export function Orders() {
   const { apiUrl } = useContext(AppContext);
   const [loading, setLoading] = useState(true);
@@ -38,7 +91,7 @@ export function Orders() {
   const [toastMsg, setToastMsg] = useState("");
   const [storeUrl, setStoreUrl] = useState("");
 
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState(ordersData);
   const [hasNextPage, setHasNextPage] = useState(false);
   const [hasPreviousPage, setHasPreviousPage] = useState(false);
   const [pageCursor, setPageCursor] = useState("next");
@@ -282,15 +335,15 @@ export function Orders() {
     }
   };
 
-  useEffect(() => {
-    if (toggleLoadData) {
-      getOrders();
-    }
-  }, [toggleLoadData]);
+  // useEffect(() => {
+  //   if (toggleLoadData) {
+  //     getOrders();
+  //   }
+  // }, [toggleLoadData]);
 
   return (
     <div className="Products-Page IndexTable-Page Orders-page">
-      {loading ? (
+      {!loading ? (
         <span>
           <Loading />
           <SkeltonPageForTable />

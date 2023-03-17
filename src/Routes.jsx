@@ -35,55 +35,55 @@ function Routes1() {
 
   return (
     <>
-      {/* {isLoggedIn ? ( */}
-      <Routes>
-        <Route path="/" element={<Navigate to="/admin/dashboard" />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/sign-up" element={<SignUp />} />
-        <Route path="/sign-up-status" element={<SignUpStatus />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/change-password" element={<ChangePassword />} />
-        <Route
-          path="/admin/dashboard"
-          element={
-            <MainLayout>
-              <Dashboard />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="/admin/products"
-          element={
-            <MainLayout>
-              <Products />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="/admin/orders"
-          element={
-            <MainLayout>
-              <Orders />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="/admin/markets"
-          element={
-            <MainLayout>
-              <Markets />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="/admin/profile"
-          element={
-            <MainLayout>
-              <Profile />
-            </MainLayout>
-          }
-        />
-        {/* <Route
+      {isLoggedIn ? (
+        <Routes>
+          <Route path="/" element={<Navigate to="/admin/dashboard" />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/sign-up" element={<SignUp />} />
+          <Route path="/sign-up-status" element={<SignUpStatus />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/change-password" element={<ChangePassword />} />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <MainLayout>
+                <Dashboard />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/admin/products"
+            element={
+              <MainLayout>
+                <Products />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/admin/orders"
+            element={
+              <MainLayout>
+                <Orders />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/admin/markets"
+            element={
+              <MainLayout>
+                <Markets />
+              </MainLayout>
+            }
+          />
+          <Route
+            path="/admin/profile"
+            element={
+              <MainLayout>
+                <Profile />
+              </MainLayout>
+            }
+          />
+          {/* <Route
             path="/admin/customers"
             element={
               <MainLayout>
@@ -155,15 +155,15 @@ function Routes1() {
               </MainLayout>
             }
           /> */}
-        <Route
-          path="/admin/settings"
-          element={
-            <MainLayout>
-              <Settings />
-            </MainLayout>
-          }
-        />
-        {/* <Route
+          <Route
+            path="/admin/settings"
+            element={
+              <MainLayout>
+                <Settings />
+              </MainLayout>
+            }
+          />
+          {/* <Route
             path="/admin/shipping"
             element={
               <MainLayout>
@@ -180,18 +180,19 @@ function Routes1() {
             }
           /> */}
 
-        <Route path="*" element={<Navigate to="/admin/dashboard" />} />
-      </Routes>
-
-      {/* <Routes>
-         <Route path="/" element={<Navigate to="/login" />} />
-         <Route path="/login" element={<Login />} />
-         <Route path="/sign-up" element={<SignUp />} />
-        <Route path="/sign-up-status" element={<SignUpStatus />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-         <Route path="/change-password" element={<ChangePassword />} />
-         <Route path="*" element={<NotFound />} />
-      </Routes> */}
+          <Route path="*" element={<Navigate to="/admin/dashboard" />} />
+        </Routes>
+      ) : (
+        <Routes>
+          <Route path="/" element={<Navigate to="/login" />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/sign-up" element={<SignUp />} />
+          <Route path="/sign-up-status" element={<SignUpStatus />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/change-password" element={<ChangePassword />} />
+          <Route path="*" element={<Navigate to="/login" />} />
+        </Routes>
+      )}
     </>
   );
 }

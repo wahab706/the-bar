@@ -145,6 +145,7 @@ export function Login() {
         isLoggedIn: true,
       });
       setBtnLoading(false);
+      setLocationChange("/");
       navigate("/");
     }, 1000);
   };
