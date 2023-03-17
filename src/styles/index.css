@@ -1693,6 +1693,10 @@
   margin-bottom: 2rem;
 }
 
+.Market-Edit-Countries-Scroll {
+  max-height: 370px;
+}
+
 .Market-Detail-Page
   .Polaris-FormLayout
   .Polaris-FormLayout--grouped

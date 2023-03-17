@@ -551,7 +551,6 @@ export function MarketDetail() {
   }
 
   useEffect(() => {
-    console.log("allCountries", allCountries);
     setContinentsList(groupCountries(allCountries));
   }, []);
 
@@ -680,7 +679,7 @@ export function MarketDetail() {
               </Card>
 
               <Card sectioned title="Country/State">
-                <Scrollable style={{ height: "370px" }}>
+                <Scrollable className="Market-Edit-Countries-Scroll">
                   <CheckboxTree
                     nodes={continentsList}
                     checked={checkedCountries}
