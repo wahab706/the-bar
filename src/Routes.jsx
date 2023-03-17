@@ -25,6 +25,8 @@ import {
   Account,
   SignUpStatus,
   Markets,
+  Vendors,
+  MarketDetail,
 } from "./routes/admin/index";
 import NotFound from "./routes/NotFound";
 import { MainLayout } from "./components";
@@ -76,6 +78,14 @@ function Routes1() {
             }
           />
           <Route
+            path={`/admin/market/:marketId`}
+            element={
+              <MainLayout>
+                <MarketDetail />
+              </MainLayout>
+            }
+          />
+          <Route
             path="/admin/profile"
             element={
               <MainLayout>
@@ -83,7 +93,7 @@ function Routes1() {
               </MainLayout>
             }
           />
-          {/* <Route
+          <Route
             path="/admin/customers"
             element={
               <MainLayout>
@@ -92,6 +102,14 @@ function Routes1() {
             }
           />
           <Route
+            path="/admin/vendors"
+            element={
+              <MainLayout>
+                <Vendors />
+              </MainLayout>
+            }
+          />
+          {/*<Route
             path="/admin/customization"
             element={
               <MainLayout>

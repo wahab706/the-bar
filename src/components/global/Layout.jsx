@@ -120,17 +120,23 @@ export function MainLayout({ children }) {
             onClick: () => setLocationChange("/admin/products"),
           },
           {
+            label: "Customers",
+            icon: CustomersMinor,
+            url: "/admin/customers",
+            onClick: () => setLocationChange("/admin/customers"),
+          },
+          {
+            label: "Vendors",
+            icon: CustomersMinor,
+            url: "/admin/vendors",
+            onClick: () => setLocationChange("/admin/vendors"),
+          },
+          {
             label: "Markets",
             icon: MarketsMajor,
             url: "/admin/markets",
             onClick: () => setLocationChange("/admin/markets"),
           },
-          // {
-          //     label: 'Customers',
-          //     icon: CustomersMinor,
-          //     url: '/admin/customers',
-          //     onClick: () => setLocationChange("/admin/customers"),
-          // },
           // {
           //     label: 'Customization',
           //     icon: customize,

@@ -27,7 +27,7 @@ import { useAuthState } from "../../components/providers/AuthProvider";
 import axios from "axios";
 import dateFormat from "dateformat";
 
-export function Customers() {
+export function Vendors() {
   const { apiUrl } = useContext(AppContext);
   const { user } = useAuthState();
   const [loading, setLoading] = useState(true);
@@ -94,8 +94,8 @@ export function Customers() {
   // ---------------------Index Table Code Start Here----------------------
 
   const resourceName = {
-    singular: "Customer",
-    plural: "Customers",
+    singular: "Vendor",
+    plural: "Vendors",
   };
 
   const rowMarkup = customers?.map(
@@ -131,7 +131,7 @@ export function Customers() {
   );
 
   const emptyStateMarkup = (
-    <EmptySearchResult title={"No Customers Found"} withIllustration />
+    <EmptySearchResult title={"No Vendors Found"} withIllustration />
   );
 
   const handleClearStates = () => {
@@ -216,14 +216,14 @@ export function Customers() {
           <SkeltonPageForTable />
         </span>
       ) : (
-        <Page fullWidth title="Customers">
+        <Page fullWidth title="Vendors">
           <Card>
             <div className="Polaris-Table">
               <Card.Section>
                 <div style={{ padding: "16px", display: "flex" }}>
                   <div style={{ flex: 1 }}>
                     <TextField
-                      placeholder="Search Customer"
+                      placeholder="Search Vendor"
                       value={queryValue}
                       onChange={handleFiltersQueryChange}
                       clearButton
