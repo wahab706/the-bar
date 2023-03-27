@@ -1077,6 +1077,24 @@
 }
 
 /* ---------------------Login-Page -------------------------- */
+.Logout-Processing {
+  position: fixed;
+  inset: 0px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.8);
+  z-index: 500;
+}
+
+.Logout-Processing p {
+  color: #000000;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.43;
+  letter-spacing: 0.01071em;
+}
 .Login-Page-Centered {
   position: absolute;
   top: 50%;
@@ -1130,6 +1148,13 @@
   justify-content: center;
   margin: 0 auto;
   margin-bottom: 1.5rem;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #ebebeb;
+}
+
+.Logo-Container img {
+  max-width: 150px;
+  max-height: 80px;
 }
 
 .Login-Page .Form-Terms a {

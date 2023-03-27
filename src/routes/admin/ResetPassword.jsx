@@ -64,56 +64,38 @@ export function ResetPassword() {
     });
   };
 
-  //   const handleFormSubmit = async (e) => {
-  //     e.preventDefault();
-  //     setBtnLoading(true);
-  //     setBtnDisabled(true);
-  //     let data = {
-  //       email: formValues.email,
-  //     };
-
-  //     try {
-  //       const response = await axios.post(`${apiUrl}/api/forgot-password`, data);
-  //       // console.log('forgot password response: ', response.data);
-  //       setToastMsg(response?.data?.status);
-  //       setSucessToast(true);
-  //       setBtnLoading(false);
-  //       if (
-  //         response?.data?.status ==
-  //         "We can't find a user with that email address."
-  //       ) {
-  //         setBtnDisabled(false);
-  //       } else {
-  //         setTime(60);
-  //         setTimeout(() => {
-  //           setBtnDisabled(false);
-  //         }, 60000);
-  //       }
-  //     } catch (error) {
-  //       console.warn("forgot password Api Error", error);
-  //       setBtnLoading(false);
-  //       setBtnDisabled(false);
-  //       if (error.response?.message) {
-  //         setToastMsg(error.response?.message);
-  //         setErrorToast(true);
-  //       } else {
-  //         setToastMsg("Server Error");
-  //         setErrorToast(true);
-  //       }
-  //     }
-  //   };
-
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-
+    setBtnLoading(true);
     setBtnDisabled(true);
-    setTime(60);
-    setToastMsg("We have emailed your password reset link!");
-    setSucessToast(true);
+    let data = {
+      email: formValues.email,
+    };
 
-    setTimeout(() => {
+    try {
+      const response = await axios.post(`${apiUrl}/api/forget/password`, data);
+      console.log("forgot password response: ", response.data);
+
+      setBtnLoading(false);
+      if (!response.data?.success) {
+        setToastMsg(response?.data?.message);
+        setErrorToast(true);
+        setBtnDisabled(false);
+      } else {
+        setToastMsg(response?.data?.message);
+        setSucessToast(true);
+        setTime(60);
+        setTimeout(() => {
+          setBtnDisabled(false);
+        }, 60000);
+      }
+    } catch (error) {
+      console.warn("forgot password Api Error", error);
+      setBtnLoading(false);
       setBtnDisabled(false);
-    }, 60000);
+      setToastMsg("Something Went Wrong, Try Again!");
+      setErrorToast(true);
+    }
   };
 
   useEffect(() => {

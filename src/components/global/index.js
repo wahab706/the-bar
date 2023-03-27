@@ -1,4 +1,6 @@
-export {MainLayout} from './Layout';
+export {SuperAdminLayout} from './Layout';
+export {AdminLayout} from './Layout';
+export {VendorLayout} from './Layout';
 export {SkeltonPage} from './SkeltonPage';
 export {SkeltonDashboardPage} from './SkeltonPage';
 export {SkeltonPageForTable} from './SkeltonPage'

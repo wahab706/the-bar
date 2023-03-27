@@ -36,6 +36,7 @@ function useAuthDispatch() {
 const initialState = {
   user: null,
   userToken: "",
+  userRole: null,
   isLoggedIn: false,
 };
 

@@ -67,87 +67,53 @@ export function Login() {
     });
   };
 
-  // const handleFormSubmit = async (e) => {
-  //     e.preventDefault();
-  //     setBtnLoading(true)
-
-  //     let data = {
-  //         email: formValues.email,
-  //         password: formValues.password,
-  //     }
-
-  //     try {
-  //         const response = await axios.post(`${apiUrl}/api/login`, data)
-
-  //         // console.log('Login response: ', response.data);
-  //         setBtnLoading(false)
-  //         if (!response.data.errors) {
-  //             clearFormValues()
-  //             setToastMsg(response.data.message)
-  //             setSucessToast(true)
-  //             setAccessToken(response.data.data.token)
-  //             dispatch({
-  //                 user: response.data.user,
-  //                 userToken: response.data.data.token,
-  //             });
-  //             setLocationChange('/')
-
-  //             if (response.data.user?.email_verified_at == null) {
-  //                 navigate(`/sign-up-status?email=${response.data.user?.email}`)
-  //             }
-  //             else {
-  //                 if (response.data.user?.shopifyConnected) {
-  //                     setTimeout(() => {
-  //                         navigate('/')
-  //                     }, 1000);
-  //                 }
-  //                 else {
-  //                     setTimeout(() => {
-  //                         navigate('/admin/store-connect')
-  //                     }, 1000);
-  //                 }
-  //             }
-
-  //         }
-  //         else {
-  //             clearFormValues()
-  //             setToastMsg(response.data.message)
-  //             setErrorToast(true)
-  //         }
-
-  //     } catch (error) {
-  //         console.warn('Login Api Error', error.response);
-  //         setBtnLoading(false)
-  //         setFormValues({ ...formValues, ['password']: '' })
-  //         if (error.response?.data?.data?.error && error.response?.data?.data?.error == "Unauthorised") {
-  //             setToastMsg('Your email or password is incorrect.')
-  //             setErrorToast(true)
-  //         }
-  //         else if (error.response?.data?.data?.error) {
-  //             setToastMsg(error.response?.data?.data?.error)
-  //             setErrorToast(true)
-  //         }
-  //         else {
-  //             setToastMsg('Server Error')
-  //             setErrorToast(true)
-  //         }
-
-  //     }
-
-  // }
-
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setBtnLoading(true);
 
-    setTimeout(() => {
-      dispatch({
-        isLoggedIn: true,
+    let data = {
+      email: formValues.email,
+      password: formValues.password,
+    };
+
+    try {
+      const response = await axios.post(`${apiUrl}/api/login`, data, {
+        headers: { Authorization: `Bearer token` },
       });
+
+      console.log("Login response: ", response.data);
       setBtnLoading(false);
+
+      clearFormValues();
+      setToastMsg(response.data?.message);
+      setSucessToast(true);
+      setAccessToken(response.data?.token);
+      dispatch({
+        user: response.data?.user[0] && response.data?.user[0],
+        userToken: response.data?.token,
+        userRole: response.data?.role[0] && response.data?.role[0],
+      });
       setLocationChange("/");
       navigate("/");
-    }, 1000);
+    } catch (error) {
+      console.log("Login Api Error", error.response);
+      setBtnLoading(false);
+      setFormValues({ ...formValues, ["password"]: "" });
+      if (error.response?.data?.message == "Validation Error") {
+        if (error.response?.data?.errors?.email) {
+          setToastMsg(error.response?.data?.errors?.email[0]);
+        } else if (error.response?.data?.errors?.password) {
+          setToastMsg(error.response?.data?.errors?.password[0]);
+        } else {
+          setToastMsg("Validation Error!");
+        }
+      } else if (error.response?.data?.message) {
+        setToastMsg(error.response?.data?.message);
+      } else {
+        setToastMsg("Authentication Error!");
+      }
+      setErrorToast(true);
+    }
   };
 
   return (
@@ -216,13 +182,7 @@ export function Login() {
                     <Link to="/reset-password">Forgot the password?</Link>
                   </Stack>
                 </div>
-
-                <div className="Form-Footer">
-                  <p>
-                    {"Don't have an account? "}
-                    <Link to="/sign-up">Sign up</Link>
-                  </p>
-                </div>
+                <br />
               </FormLayout>
             </Form>
           </div>

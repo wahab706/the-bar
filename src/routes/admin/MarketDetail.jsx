@@ -231,7 +231,7 @@ export function MarketDetail() {
   }
 
   const discardMarket = () => {
-    navigate("/admin/markets");
+    navigate("/markets");
   };
 
   const handleDiscardModal = () => {

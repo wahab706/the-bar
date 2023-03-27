@@ -56,10 +56,14 @@ ChartJS.register(
   Tooltip,
   Legend
 );
+import {
+  useAuthDispatch,
+  useAuthState,
+} from "../../components/providers/AuthProvider";
 
 export function Dashboard() {
   const { apiUrl } = useContext(AppContext);
-
+  const { user } = useAuthState();
   const [loading, setLoading] = useState(true);
   const [errorToast, setErrorToast] = useState(false);
   const [sucessToast, setSucessToast] = useState(false);
@@ -369,7 +373,7 @@ export function Dashboard() {
       ) : (
         <Page
           fullWidth
-          title={`Welcome Home, Ahmad Naeem`}
+          title={`Welcome Home, ${user?.first_name}`}
           //   primaryAction={{
           //     content: (
           //       <span id="monthPicker">

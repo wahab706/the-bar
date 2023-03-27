@@ -377,12 +377,12 @@ export function Markets() {
 
   const addNewMarket = (e) => {
     e.preventDefault();
-    navigate(`/admin/market/${"1"}`);
+    navigate(`/market/${"1"}`);
     // alert("new market added");
   };
 
   const editMarket = (id) => {
-    navigate(`/admin/market/${id}`);
+    navigate(`/market/${id}`);
   };
 
   return (

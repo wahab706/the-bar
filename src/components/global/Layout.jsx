@@ -7,6 +7,7 @@ import {
   CustomersMinor,
   OrdersMinor,
   MarketsMajor,
+  FinancesMinor,
 } from "@shopify/polaris-icons";
 import { AppContext } from "../providers/ContextProvider";
 import { useAuthDispatch, useAuthState } from "../providers/AuthProvider";
@@ -15,22 +16,23 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { setAccessToken, getAccessToken } from "../../components";
 import axios from "axios";
 
-export function MainLayout({ children }) {
-  const apiUrl = "https://phpstack-908320-3153127.cloudwaysapps.com";
+const apiUrl = "https://phpstack-899754-3368767.cloudwaysapps.com";
+
+export function SuperAdminLayout({ children }) {
+  const apiUrl = "https://phpstack-899754-3368767.cloudwaysapps.com";
 
   const dispatch = useAuthDispatch();
   const { user } = useAuthState();
   const navigate = useNavigate();
   const location = useLocation();
+  const [btnLoading, setBtnLoading] = useState(false);
   const { locationChange, setLocationChange } = useContext(AppContext);
   const skipToContentRef = useRef(null);
   const [userMenuActive, setUserMenuActive] = useState(false);
   const [mobileNavigationActive, setMobileNavigationActive] = useState(false);
   const [userDetails, setUserDetails] = useState({
-    // name: user?.name,
-    // initials: "",
-    name: "Ahmad",
-    initials: "A",
+    name: user?.first_name,
+    initials: "",
   });
 
   const [errorToast, setErrorToast] = useState(false);
@@ -54,184 +56,219 @@ export function MainLayout({ children }) {
     <Toast content={toastMsg} onDismiss={toggleSuccessMsgActive} />
   ) : null;
 
-  //   useEffect(() => {
-  //     if (user?.name?.length > 0) {
-  //       let rgx = new RegExp(/(\p{L}{1})\p{L}+/, "gu");
-  //       let initials = [...user.name.matchAll(rgx)] || [];
-  //       initials = (
-  //         (initials.shift()?.[1] || "") + (initials.pop()?.[1] || "")
-  //       ).toUpperCase();
-  //       setUserDetails({
-  //         name: user?.name,
-  //         initials: initials,
-  //       });
-  //     }
-  //   }, [user]);
+  useEffect(() => {
+    if (user?.first_name?.length > 0) {
+      let rgx = new RegExp(/(\p{L}{1})\p{L}+/, "gu");
+      let initials = [...user.first_name.matchAll(rgx)] || [];
+      initials = (
+        (initials.shift()?.[1] || "") + (initials.pop()?.[1] || "")
+      ).toUpperCase();
+      setUserDetails({
+        name: user?.first_name,
+        initials: initials,
+      });
+    }
+  }, [user]);
 
   const handleLogout = async () => {
     let data = {};
-    // try {
-    //   const response = await axios.post(`${apiUrl}/api/logout`, data, {
-    //     headers: { Authorization: `Bearer ${getAccessToken()}` },
-    //   });
+    setBtnLoading(true);
+    try {
+      const response = await axios.post(`${apiUrl}/api/logout`, data, {
+        headers: { Authorization: `Bearer ${getAccessToken()}` },
+      });
+      // console.log("response", response?.data);
 
-    //   if (!response?.data?.errors) {
-    //     setAccessToken("");
-    //     dispatch({
-    //       user: null,
-    //       userToken: "",
-    //     });
-    //     navigate("/login");
-    //   }
-    // } catch (error) {
-    //   console.warn("AuthCheck Api Error", error);
-    //   if (error.response?.data?.message) {
-    //     setToastMsg(error.response?.data?.message);
-    //   } else {
-    //     setToastMsg("Server Error");
-    //   }
-    //   setErrorToast(true);
-    // }
-
-    navigate("/login");
+      if (response?.data?.success) {
+        setAccessToken("");
+        dispatch({
+          user: null,
+          userToken: "",
+          userRole: null,
+        });
+        navigate("/login");
+      } else {
+        setToastMsg(response?.data?.message);
+        setErrorToast(true);
+      }
+      setBtnLoading(false);
+    } catch (error) {
+      setBtnLoading(false);
+      console.warn("AuthCheck Api Error", error);
+      setToastMsg("Something Went Wrong, Try Again!");
+      setErrorToast(true);
+    }
   };
 
-  const NavigationMarkupPrimary = (
+  const NavigationMarkupSuperAdmin = (
     <Navigation location={locationChange}>
       <Navigation.Section
         items={[
           {
             label: "Dashboard",
             icon: HomeMinor,
-            url: "/admin/dashboard",
-            onClick: () => setLocationChange("/admin/dashboard"),
-            selected: location.pathname === "/admin/dashboard",
+            url: "/dashboard",
+            onClick: () => setLocationChange("/dashboard"),
+            selected: location.pathname === "/dashboard",
           },
           {
             label: "Orders",
             icon: OrdersMinor,
-            url: "/admin/orders",
-            onClick: () => setLocationChange("/admin/orders"),
+            url: "/orders",
+            onClick: () => setLocationChange("/orders"),
           },
           {
             label: "Products",
             icon: ProductsMinor,
-            url: "/admin/products",
-            onClick: () => setLocationChange("/admin/products"),
+            url: "/products",
+            onClick: () => setLocationChange("/products"),
           },
           {
             label: "Customers",
             icon: CustomersMinor,
-            url: "/admin/customers",
-            onClick: () => setLocationChange("/admin/customers"),
+            url: "/customers",
+            onClick: () => setLocationChange("/customers"),
           },
           {
             label: "Vendors",
             icon: CustomersMinor,
-            url: "/admin/vendors",
-            onClick: () => setLocationChange("/admin/vendors"),
+            url: "/vendors",
+            onClick: () => setLocationChange("/vendors"),
           },
           {
             label: "Markets",
             icon: MarketsMajor,
-            url: "/admin/markets",
-            onClick: () => setLocationChange("/admin/markets"),
+            url: "/markets",
+            onClick: () => setLocationChange("/markets"),
           },
-          // {
-          //     label: 'Customization',
-          //     icon: customize,
-          //     url: '/admin/customization',
-          //     onClick: () => setLocationChange("/admin/customization"),
-          // },
-          // {
-          //     label: 'Shipping & Tax',
-          //     icon: shipping,
-          //     url: '/admin/shipping',
-          //     onClick: () => setLocationChange("/admin/shipping"),
-          // },
-          // {
-          //     label: 'Payment Methods',
-          //     icon: payment,
-          //     url: '/admin/paymentmethods',
-          //     onClick: () => setLocationChange("/admin/paymentmethods"),
-          // },
-          // {
-          //     label: 'Extra Offers',
-          //     icon: extraOffers,
-          //     url: '/admin/offers',
-          //     onClick: () => setLocationChange("/admin/offers"),
-          // },
-          // {
-          //     label: 'Integrations',
-          //     icon: integration,
-          //     url: '/admin/integrations',
-          //     onClick: () => setLocationChange("/admin/integrations"),
-          // },
-          // {
-          //     label: 'Localization',
-          //     icon: localization,
-          //     url: '/admin/localization',
-          //     onClick: () => setLocationChange("/admin/localization"),
-          // },
-          // {
-          //     label: 'Automatic discounts',
-          //     icon: discount,
-          //     url: '/admin/discounts',
-          //     onClick: () => setLocationChange("/admin/discounts"),
-          // },
-          // {
-          //     label: 'Scripts & Api',
-          //     icon: scripts,
-          //     url: '/admin/scripts',
-          //     onClick: () => setLocationChange("/admin/scripts"),
-          // },
+          {
+            label: "Finance",
+            icon: FinancesMinor,
+            url: "/finances",
+            onClick: () => setLocationChange("/finances"),
+          },
           {
             label: "Account",
             icon: account,
-            url: "/admin/profile",
-            onClick: () => setLocationChange("/admin/profile"),
+            url: "/profile",
+            onClick: () => setLocationChange("/profile"),
           },
           {
             label: "Settings",
             icon: SettingsMinor,
-            url: "/admin/settings",
-            onClick: () => setLocationChange("/admin/settings"),
+            url: "/settings",
+            onClick: () => setLocationChange("/settings"),
           },
         ]}
       />
     </Navigation>
   );
 
-  const NavigationMarkupSecondary = (
+  const NavigationMarkupAdmin = (
     <Navigation location={locationChange}>
       <Navigation.Section
         items={[
           {
-            label: "Store Connect",
-            icon: account,
-            url: "/admin/store-connect",
-            onClick: () => setLocationChange("/admin/store-connect"),
-            selected: location.pathname == "/admin/store-connect",
+            label: "Dashboard",
+            icon: HomeMinor,
+            url: "/dashboard",
+            onClick: () => setLocationChange("/dashboard"),
+            selected: location.pathname === "/dashboard",
           },
-          // {
-          //     label: 'Account & Billing',
-          //     icon: account,
-          //     url: '/admin/profile/your-profile',
-          //     onClick: () => setLocationChange("/admin/profile/your-profile"),
-          //     selected: location.pathname == '/admin/profile/your-profile',
-          // },
+          {
+            label: "Orders",
+            icon: OrdersMinor,
+            url: "/orders",
+            onClick: () => setLocationChange("/orders"),
+          },
+          {
+            label: "Products",
+            icon: ProductsMinor,
+            url: "/products",
+            onClick: () => setLocationChange("/products"),
+          },
+          {
+            label: "Customers",
+            icon: CustomersMinor,
+            url: "/customers",
+            onClick: () => setLocationChange("/customers"),
+          },
+          {
+            label: "Vendors",
+            icon: CustomersMinor,
+            url: "/vendors",
+            onClick: () => setLocationChange("/vendors"),
+          },
+          {
+            label: "Markets",
+            icon: MarketsMajor,
+            url: "/markets",
+            onClick: () => setLocationChange("/markets"),
+          },
+          {
+            label: "Account",
+            icon: account,
+            url: "/profile",
+            onClick: () => setLocationChange("/profile"),
+          },
+          {
+            label: "Settings",
+            icon: SettingsMinor,
+            url: "/settings",
+            onClick: () => setLocationChange("/settings"),
+          },
         ]}
       />
     </Navigation>
   );
 
-  //   const navigationMarkup =
-  //     location.pathname == "/admin/store-connect" ||
-  //     location.pathname == "/admin/profile/your-profile"
-  //       ? NavigationMarkupSecondary
-  //       : NavigationMarkupPrimary;
+  const NavigationMarkupVendor = (
+    <Navigation location={locationChange}>
+      <Navigation.Section
+        items={[
+          {
+            label: "Dashboard",
+            icon: HomeMinor,
+            url: "/dashboard",
+            onClick: () => setLocationChange("/dashboard"),
+            selected: location.pathname === "/dashboard",
+          },
+          {
+            label: "Orders",
+            icon: OrdersMinor,
+            url: "/orders",
+            onClick: () => setLocationChange("/orders"),
+          },
+          {
+            label: "Products",
+            icon: ProductsMinor,
+            url: "/products",
+            onClick: () => setLocationChange("/products"),
+          },
+          {
+            label: "Account",
+            icon: account,
+            url: "/profile",
+            onClick: () => setLocationChange("/profile"),
+          },
+          {
+            label: "Settings",
+            icon: SettingsMinor,
+            url: "/settings",
+            onClick: () => setLocationChange("/settings"),
+          },
+        ]}
+      />
+    </Navigation>
+  );
 
-  const navigationMarkup = NavigationMarkupPrimary;
+  // user?.userRole == "super_admin"
+  //   ? NavigationMarkupSuperAdmin
+  //   : user?.userRole == "admin"
+  //   ? NavigationMarkupAdmin
+  //   : user?.userRole == "vendor"
+  //   ? NavigationMarkupVendor
+  //   : "";
 
   const toggleMobileNavigationActive = useCallback(
     () =>
@@ -287,8 +324,6 @@ export function MainLayout({ children }) {
   return (
     <div style={{ height: "500px" }}>
       {location.pathname == "/login" ||
-      location.pathname == "/sign-up" ||
-      location.pathname == "/sign-up-status" ||
       location.pathname == "/reset-password" ||
       location.pathname == "/change-password" ? (
         <Frame>{children}</Frame>
@@ -296,7 +331,7 @@ export function MainLayout({ children }) {
         <Frame
           logo={logo}
           topBar={topBarMarkup}
-          navigation={navigationMarkup}
+          navigation={NavigationMarkupSuperAdmin}
           showMobileNavigation={mobileNavigationActive}
           onNavigationDismiss={toggleMobileNavigationActive}
           skipToContentTarget={skipToContentRef.current}
@@ -306,6 +341,432 @@ export function MainLayout({ children }) {
       )}
       {toastErrorMsg}
       {toastSuccessMsg}
+
+      {btnLoading && (
+        <div className="Logout-Processing">
+          <p>Loading...</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function AdminLayout({ children }) {
+  const dispatch = useAuthDispatch();
+  const { user } = useAuthState();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [btnLoading, setBtnLoading] = useState(false);
+  const { locationChange, setLocationChange } = useContext(AppContext);
+  const skipToContentRef = useRef(null);
+  const [userMenuActive, setUserMenuActive] = useState(false);
+  const [mobileNavigationActive, setMobileNavigationActive] = useState(false);
+  const [userDetails, setUserDetails] = useState({
+    name: user?.first_name,
+    initials: "",
+  });
+
+  const [errorToast, setErrorToast] = useState(false);
+  const [sucessToast, setSucessToast] = useState(false);
+  const [toastMsg, setToastMsg] = useState("");
+
+  const toggleErrorMsgActive = useCallback(
+    () => setErrorToast((errorToast) => !errorToast),
+    []
+  );
+  const toggleSuccessMsgActive = useCallback(
+    () => setSucessToast((sucessToast) => !sucessToast),
+    []
+  );
+
+  const toastErrorMsg = errorToast ? (
+    <Toast content={toastMsg} error onDismiss={toggleErrorMsgActive} />
+  ) : null;
+
+  const toastSuccessMsg = sucessToast ? (
+    <Toast content={toastMsg} onDismiss={toggleSuccessMsgActive} />
+  ) : null;
+
+  useEffect(() => {
+    if (user?.first_name?.length > 0) {
+      let rgx = new RegExp(/(\p{L}{1})\p{L}+/, "gu");
+      let initials = [...user.first_name.matchAll(rgx)] || [];
+      initials = (
+        (initials.shift()?.[1] || "") + (initials.pop()?.[1] || "")
+      ).toUpperCase();
+      setUserDetails({
+        name: user?.first_name,
+        initials: initials,
+      });
+    }
+  }, [user]);
+
+  const handleLogout = async () => {
+    let data = {};
+    setBtnLoading(true);
+    try {
+      const response = await axios.post(`${apiUrl}/api/logout`, data, {
+        headers: { Authorization: `Bearer ${getAccessToken()}` },
+      });
+      // console.log("response", response?.data);
+
+      if (response?.data?.success) {
+        setAccessToken("");
+        dispatch({
+          user: null,
+          userToken: "",
+          userRole: null,
+        });
+        navigate("/login");
+      } else {
+        setToastMsg(response?.data?.message);
+        setErrorToast(true);
+      }
+      setBtnLoading(false);
+    } catch (error) {
+      setBtnLoading(false);
+      console.warn("AuthCheck Api Error", error);
+      setToastMsg("Something Went Wrong, Try Again!");
+      setErrorToast(true);
+    }
+  };
+
+  const NavigationMarkupAdmin = (
+    <Navigation location={locationChange}>
+      <Navigation.Section
+        items={[
+          {
+            label: "Dashboard",
+            icon: HomeMinor,
+            url: "/dashboard",
+            onClick: () => setLocationChange("/dashboard"),
+            selected: location.pathname === "/dashboard",
+          },
+          {
+            label: "Orders",
+            icon: OrdersMinor,
+            url: "/orders",
+            onClick: () => setLocationChange("/orders"),
+          },
+          {
+            label: "Products",
+            icon: ProductsMinor,
+            url: "/products",
+            onClick: () => setLocationChange("/products"),
+          },
+          {
+            label: "Customers",
+            icon: CustomersMinor,
+            url: "/customers",
+            onClick: () => setLocationChange("/customers"),
+          },
+          {
+            label: "Vendors",
+            icon: CustomersMinor,
+            url: "/vendors",
+            onClick: () => setLocationChange("/vendors"),
+          },
+          {
+            label: "Markets",
+            icon: MarketsMajor,
+            url: "/markets",
+            onClick: () => setLocationChange("/markets"),
+          },
+          {
+            label: "Account",
+            icon: account,
+            url: "/profile",
+            onClick: () => setLocationChange("/profile"),
+          },
+          {
+            label: "Settings",
+            icon: SettingsMinor,
+            url: "/settings",
+            onClick: () => setLocationChange("/settings"),
+          },
+        ]}
+      />
+    </Navigation>
+  );
+
+  const toggleMobileNavigationActive = useCallback(
+    () =>
+      setMobileNavigationActive(
+        (mobileNavigationActive) => !mobileNavigationActive
+      ),
+    []
+  );
+
+  const toggleUserMenuActive = useCallback(
+    () => setUserMenuActive((userMenuActive) => !userMenuActive),
+    []
+  );
+
+  const userMenuActions = [
+    {
+      items: [
+        {
+          content: "Logout",
+          onAction: handleLogout,
+        },
+      ],
+    },
+  ];
+
+  const userMenuMarkup = (
+    <TopBar.UserMenu
+      actions={userMenuActions}
+      name={userDetails.name}
+      initials={userDetails.initials}
+      open={userMenuActive}
+      onToggle={toggleUserMenuActive}
+    />
+  );
+
+  const topBarMarkup = (
+    <TopBar
+      showNavigationToggle
+      userMenu={userMenuMarkup}
+      onNavigationToggle={toggleMobileNavigationActive}
+    />
+  );
+
+  const logo = {
+    width: 124,
+    topBarSource: barLogo,
+    contextualSaveBarSource: barLogo,
+    url: "/",
+    accessibilityLabel: "Jaded Pixel",
+    onClick: () => setLocationChange("/"),
+  };
+
+  return (
+    <div style={{ height: "500px" }}>
+      {location.pathname == "/login" ||
+      location.pathname == "/reset-password" ||
+      location.pathname == "/change-password" ? (
+        <Frame>{children}</Frame>
+      ) : (
+        <Frame
+          logo={logo}
+          topBar={topBarMarkup}
+          navigation={NavigationMarkupAdmin}
+          showMobileNavigation={mobileNavigationActive}
+          onNavigationDismiss={toggleMobileNavigationActive}
+          skipToContentTarget={skipToContentRef.current}
+        >
+          {children}
+        </Frame>
+      )}
+      {toastErrorMsg}
+      {toastSuccessMsg}
+
+      {btnLoading && (
+        <div className="Logout-Processing">
+          <p>Loading...</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function VendorLayout({ children }) {
+  const dispatch = useAuthDispatch();
+  const { user } = useAuthState();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [btnLoading, setBtnLoading] = useState(false);
+  const { locationChange, setLocationChange } = useContext(AppContext);
+  const skipToContentRef = useRef(null);
+  const [userMenuActive, setUserMenuActive] = useState(false);
+  const [mobileNavigationActive, setMobileNavigationActive] = useState(false);
+  const [userDetails, setUserDetails] = useState({
+    name: user?.first_name,
+    initials: "",
+  });
+
+  const [errorToast, setErrorToast] = useState(false);
+  const [sucessToast, setSucessToast] = useState(false);
+  const [toastMsg, setToastMsg] = useState("");
+
+  const toggleErrorMsgActive = useCallback(
+    () => setErrorToast((errorToast) => !errorToast),
+    []
+  );
+  const toggleSuccessMsgActive = useCallback(
+    () => setSucessToast((sucessToast) => !sucessToast),
+    []
+  );
+
+  const toastErrorMsg = errorToast ? (
+    <Toast content={toastMsg} error onDismiss={toggleErrorMsgActive} />
+  ) : null;
+
+  const toastSuccessMsg = sucessToast ? (
+    <Toast content={toastMsg} onDismiss={toggleSuccessMsgActive} />
+  ) : null;
+
+  useEffect(() => {
+    if (user?.first_name?.length > 0) {
+      let rgx = new RegExp(/(\p{L}{1})\p{L}+/, "gu");
+      let initials = [...user.first_name.matchAll(rgx)] || [];
+      initials = (
+        (initials.shift()?.[1] || "") + (initials.pop()?.[1] || "")
+      ).toUpperCase();
+      setUserDetails({
+        name: user?.first_name,
+        initials: initials,
+      });
+    }
+  }, [user]);
+
+  const handleLogout = async () => {
+    let data = {};
+    setBtnLoading(true);
+    try {
+      const response = await axios.post(`${apiUrl}/api/logout`, data, {
+        headers: { Authorization: `Bearer ${getAccessToken()}` },
+      });
+      // console.log("response", response?.data);
+
+      if (response?.data?.success) {
+        setAccessToken("");
+        dispatch({
+          user: null,
+          userToken: "",
+          userRole: null,
+        });
+        navigate("/login");
+      } else {
+        setToastMsg(response?.data?.message);
+        setErrorToast(true);
+      }
+      setBtnLoading(false);
+    } catch (error) {
+      setBtnLoading(false);
+      console.warn("AuthCheck Api Error", error);
+      setToastMsg("Something Went Wrong, Try Again!");
+      setErrorToast(true);
+    }
+  };
+
+  const NavigationMarkupVendor = (
+    <Navigation location={locationChange}>
+      <Navigation.Section
+        items={[
+          {
+            label: "Dashboard",
+            icon: HomeMinor,
+            url: "/dashboard",
+            onClick: () => setLocationChange("/dashboard"),
+            selected: location.pathname === "/dashboard",
+          },
+          {
+            label: "Orders",
+            icon: OrdersMinor,
+            url: "/orders",
+            onClick: () => setLocationChange("/orders"),
+          },
+          {
+            label: "Products",
+            icon: ProductsMinor,
+            url: "/products",
+            onClick: () => setLocationChange("/products"),
+          },
+          {
+            label: "Account",
+            icon: account,
+            url: "/profile",
+            onClick: () => setLocationChange("/profile"),
+          },
+          {
+            label: "Settings",
+            icon: SettingsMinor,
+            url: "/settings",
+            onClick: () => setLocationChange("/settings"),
+          },
+        ]}
+      />
+    </Navigation>
+  );
+
+  const toggleMobileNavigationActive = useCallback(
+    () =>
+      setMobileNavigationActive(
+        (mobileNavigationActive) => !mobileNavigationActive
+      ),
+    []
+  );
+
+  const toggleUserMenuActive = useCallback(
+    () => setUserMenuActive((userMenuActive) => !userMenuActive),
+    []
+  );
+
+  const userMenuActions = [
+    {
+      items: [
+        {
+          content: "Logout",
+          onAction: handleLogout,
+        },
+      ],
+    },
+  ];
+
+  const userMenuMarkup = (
+    <TopBar.UserMenu
+      actions={userMenuActions}
+      name={userDetails.name}
+      initials={userDetails.initials}
+      open={userMenuActive}
+      onToggle={toggleUserMenuActive}
+    />
+  );
+
+  const topBarMarkup = (
+    <TopBar
+      showNavigationToggle
+      userMenu={userMenuMarkup}
+      onNavigationToggle={toggleMobileNavigationActive}
+    />
+  );
+
+  const logo = {
+    width: 124,
+    topBarSource: barLogo,
+    contextualSaveBarSource: barLogo,
+    url: "/",
+    accessibilityLabel: "Jaded Pixel",
+    onClick: () => setLocationChange("/"),
+  };
+
+  return (
+    <div style={{ height: "500px" }}>
+      {location.pathname == "/login" ||
+      location.pathname == "/reset-password" ||
+      location.pathname == "/change-password" ? (
+        <Frame>{children}</Frame>
+      ) : (
+        <Frame
+          logo={logo}
+          topBar={topBarMarkup}
+          navigation={NavigationMarkupVendor}
+          showMobileNavigation={mobileNavigationActive}
+          onNavigationDismiss={toggleMobileNavigationActive}
+          skipToContentTarget={skipToContentRef.current}
+        >
+          {children}
+        </Frame>
+      )}
+      {toastErrorMsg}
+      {toastSuccessMsg}
+
+      {btnLoading && (
+        <div className="Logout-Processing">
+          <p>Loading...</p>
+        </div>
+      )}
     </div>
   );
 }
