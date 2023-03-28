@@ -17,7 +17,7 @@ import {
   PageActions,
   Form,
   FormLayout,
-  TextField,
+  Banner,
   Icon,
   Listbox,
   EmptySearchResult,
@@ -69,10 +69,11 @@ export function MarketDetail() {
   const [marketId, setMarketId] = useState("");
   const [discardModal, setDiscardModal] = useState(false);
   const [vendorsList, setVendorsList] = useState([]);
+  const [marketError, setMarketError] = useState();
 
   const [newMarket, setNewMarket] = useState({
-    name: "Asia Market",
-    slug: "asia-market",
+    name: "",
+    slug: "",
     description: "",
     status: true,
     country: [],
@@ -90,10 +91,8 @@ export function MarketDetail() {
 
   useEffect(() => {
     setNewMarket({
+      ...newMarket,
       slug: newMarket.name?.replace(/\s+/g, "-").toLowerCase(),
-      name: newMarket.name,
-      description: newMarket.description,
-      status: newMarket.status,
     });
   }, [newMarket.name]);
 
@@ -194,7 +193,7 @@ export function MarketDetail() {
 
   const tagTextField = (
     <Autocomplete.TextField
-      autoComplete={false}
+      autoComplete="off"
       onChange={tagUpdateText}
       label="Vendors"
       value={tagInputValue}
@@ -252,279 +251,50 @@ export function MarketDetail() {
   };
 
   // =================Countries Modal Code Start Here================
-  const [countriesModal, setCountriesModal] = useState(false);
-  const [allCountriesChecked, setAllCountriesChecked] = useState(true);
-  const [expandedContinent, setExpandedContinent] = useState([]);
-  const [continentsList, setContinentsList] = useState([]);
-  const [allCountries, setAllCountries] = useState([]);
+  const [expandedCountry, setExpandedCountry] = useState([]);
+  const [countriesList, setCountriesList] = useState([]);
+  const [allCountriesList, setAllCountriesList] = useState([]);
   const [checkedCountries, setCheckedCountries] = useState([]);
-  const [previousCheckedCountries, setPreviousCheckedCountries] = useState([]);
-  const allCountriesData = [
-    {
-      id: 1,
-      name: "United States",
-      code: "US",
-      created_at: "2023-03-16T11:52:42.000000Z",
-      updated_at: "2023-03-16T11:52:50.000000Z",
-      states: [
-        {
-          id: 1,
-          name: "Alabama",
-          code: "AL",
-          country_id: "1",
-          created_at: null,
-          updated_at: null,
-          cities: [
-            {
-              id: 1,
-              name: "Phoenix",
-              state_id: "1",
-              created_at: null,
-              updated_at: null,
-            },
-            {
-              id: 2,
-              name: "Alabama",
-              state_id: "2",
-              created_at: null,
-              updated_at: null,
-            },
-          ],
-        },
-        {
-          id: 2,
-          name: "Alaska",
-          code: "AK",
-          country_id: "1",
-          created_at: null,
-          updated_at: null,
-          cities: [
-            {
-              id: 3,
-              name: "Phoenix",
-              state_id: "3",
-              created_at: null,
-              updated_at: null,
-            },
-            {
-              id: 4,
-              name: "Alaska",
-              state_id: "4",
-              created_at: null,
-              updated_at: null,
-            },
-          ],
-        },
-        {
-          id: 3,
-          name: "Arizona",
-          code: "AZ",
-          country_id: "1",
-          created_at: null,
-          updated_at: null,
-          cities: [
-            {
-              id: 5,
-              name: "Phoenix",
-              state_id: "5",
-              created_at: null,
-              updated_at: null,
-            },
-            {
-              id: 6,
-              name: "Arizona",
-              state_id: "6",
-              created_at: null,
-              updated_at: null,
-            },
-          ],
-        },
-        {
-          id: 4,
-          name: "Arkansas",
-          code: "AR",
-          country_id: "1",
-          created_at: null,
-          updated_at: null,
-          cities: [],
-        },
-        {
-          id: 5,
-          name: "California",
-          code: "CA",
-          country_id: "1",
-          created_at: null,
-          updated_at: null,
-          cities: [
-            {
-              id: 7,
-              name: "Los Angeles",
-              state_id: "5",
-              created_at: null,
-              updated_at: null,
-            },
-            {
-              id: 8,
-              name: "San Diego",
-              state_id: "5",
-              created_at: null,
-              updated_at: null,
-            },
-            {
-              id: 10,
-              name: "San Jose",
-              state_id: "5",
-              created_at: null,
-              updated_at: null,
-            },
-          ],
-        },
-        {
-          id: 6,
-          name: "Colorado",
-          code: "CO",
-          country_id: "1",
-          created_at: null,
-          updated_at: null,
-          cities: [],
-        },
-        {
-          id: 7,
-          name: "Connecticut",
-          code: "CT",
-          country_id: "1",
-          created_at: null,
-          updated_at: null,
-          cities: [],
-        },
-        {
-          id: 8,
-          name: "Delaware",
-          code: "DE",
-          country_id: "1",
-          created_at: null,
-          updated_at: null,
-          cities: [],
-        },
-        {
-          id: 9,
-          name: "Florida",
-          code: "FL",
-          country_id: "1",
-          created_at: null,
-          updated_at: null,
-          cities: [],
-        },
-        {
-          id: 10,
-          name: "Georgia",
-          code: "GA",
-          country_id: "1",
-          created_at: null,
-          updated_at: null,
-          cities: [],
-        },
-      ],
-    },
-  ];
-
-  const handleAllCountriesChecked = (newChecked) => {
-    setAllCountriesChecked(newChecked);
-    if (newChecked == true) {
-      selectAllCountries();
-    } else {
-      setCheckedCountries([]);
-    }
-  };
-
-  const handleSelectCountriesModal = () => {
-    setCountriesModal(true);
-  };
-
-  const handleCountriesCancelModal = () => {
-    setCountriesModal(false);
-    setCheckedCountries(previousCheckedCountries);
-  };
-
-  const handleCountriesSaveModal = () => {
-    if (checkedCountries?.length > 0) {
-      setCountriesModal(false);
-      setPreviousCheckedCountries(checkedCountries);
-    } else {
-      setToastMsg("Atleast one country should be selected!");
-      setErrorToast(true);
-    }
-  };
-
-  function selectAllCountries() {
-    let arr = [];
-    continentsList?.map((continent) => {
-      continent?.children?.map((countries) => {
-        arr.push(countries.value);
-      });
-    });
-    setCheckedCountries(arr);
-    setPreviousCheckedCountries(arr);
-  }
-
-  function getFirstSelectedCountry(val, countries) {
-    let value = "";
-
-    if (countries?.length > 0) {
-      if (val == "sheet") {
-        value = allCountries.find((obj) => obj.code == countries[0]).name;
-      } else if (val == "table") {
-        value = allCountries.find((obj) => obj.code == countries[0].code).name;
-      }
-    }
-
-    return value;
-  }
+  const [checkedVariants, setCheckedVariants] = useState({
+    countries: [],
+    states: [],
+    cities: [],
+  });
 
   useEffect(() => {
-    setContinentsList(groupCountries(allCountries));
-    if (checkedCountries?.length < allCountries?.length) {
-      setAllCountriesChecked(false);
-    } else {
-      setAllCountriesChecked(true);
-    }
-  }, [checkedCountries]);
+    setCountriesList(groupCountries(allCountriesList));
+    // console.log("checkedCountries", checkedCountries);
 
-  function countrySelected(arr, region) {
-    let countries = [];
-    arr?.map((item) => {
-      if (region != "Other") {
-        if (item.continent == region) {
-          countries.push({ value: item.code, label: item.name });
-        }
-      } else {
-        if (item.continent == "Other" || item.continent == null) {
-          countries.push({ value: item.code, label: item.name });
-        }
+    let country = [];
+    let state = [];
+    let city = [];
+    allCountriesList.map((item) => {
+      let list = checkedCountries?.find((d) => d == item.id);
+      if (list) {
+        country.push(item.id);
       }
+      item.states?.map((item2) => {
+        let list = checkedCountries?.find((d) => d == `s_${item2.id}`);
+        if (list) {
+          state.push(item2.id);
+        }
+        item2.cities?.map((item3) => {
+          let list = checkedCountries?.find((d) => d == `c_${item3.id}`);
+          if (list) {
+            city.push(item3.id);
+            state.push(Number(item3.state_id));
+            country.push(Number(item3.country_id));
+          }
+        });
+      });
     });
-    return countries;
-  }
 
-  function getSelectedCountriesLength(region) {
-    let number = 0;
-    allCountries?.map((item2) => {
-      if (region != "Other") {
-        if (item2.continent == region) {
-          if (checkedCountries.find((obj) => obj == item2.code)) {
-            number = number + 1;
-          }
-        }
-      } else {
-        if (item2.continent == "Other" || item2.continent == null) {
-          if (checkedCountries.find((obj) => obj == item2.code)) {
-            number = number + 1;
-          }
-        }
-      }
+    setCheckedVariants({
+      countries: [...new Set(country)],
+      states: [...new Set(state)],
+      cities: [...new Set(city)],
     });
-    return number;
-  }
+  }, [allCountriesList, checkedCountries]);
 
   function groupCountries(data) {
     let arr = [];
@@ -536,21 +306,30 @@ export function MarketDetail() {
           if (item2.cities?.length > 0) {
             item2.cities?.map((item3) => {
               cities.push({
-                value: item3.id,
+                value: `c_${item3.id}`,
                 label: item3.name,
               });
             });
           }
 
-          states.push({
-            value: item2.code,
-            label: item2.name,
-            children: cities,
-          });
+          if (cities?.length) {
+            states.push({
+              value: `s_${item2.id}`,
+              label: item2.name,
+              children: cities,
+            });
+          } else {
+            states.push({
+              value: `s_${item2.id}`,
+              label: item2.name,
+              children: cities,
+            });
+          }
         });
       }
+
       arr.push({
-        value: item.code,
+        value: item.id,
         label: item.name,
         children: states,
       });
@@ -558,10 +337,6 @@ export function MarketDetail() {
 
     return arr;
   }
-
-  useEffect(() => {
-    setContinentsList(groupCountries(allCountriesData));
-  }, []);
 
   // =================Countries Modal Code Ends Here================
   const getCounriesList = async () => {
@@ -579,7 +354,8 @@ export function MarketDetail() {
         setToastMsg(response?.data?.message);
         setErrorToast(true);
       } else {
-        setAllCountries(response.data?.countries);
+        setAllCountriesList(response.data?.countries);
+        setCountriesList(groupCountries(response.data?.countries));
       }
     } catch (error) {
       console.warn("Get CounriesList Api Error", error.response);
@@ -603,7 +379,7 @@ export function MarketDetail() {
         }
       );
 
-      console.log("getVendorsList response: ", response.data?.vendors);
+      // console.log("getVendorsList response: ", response.data?.vendors);
       if (!response?.data?.success) {
         setToastMsg(response?.data?.message);
         setErrorToast(true);
@@ -657,11 +433,26 @@ export function MarketDetail() {
         setMarketName(marketResponse?.name);
         setMarketStatus(marketResponse?.status);
         setNewMarket({
+          ...newMarket,
           name: marketResponse?.name,
           description: marketResponse?.description,
           slug: marketResponse?.slug,
           status: convertNumberToBoolean(marketResponse?.status),
         });
+        let list = [];
+        marketResponse?.cities?.map((item) => {
+          list.push(`c_${item.id}`);
+        });
+        marketResponse?.states?.map((item) => {
+          list.push(`s_${item.id}`);
+        });
+        marketResponse?.countries?.map((item) => {
+          list.push(`${item.id}`);
+        });
+
+        setCheckedCountries(list);
+
+        setExpandedCountry();
         setLoading(false);
         setToggleLoadData(false);
         window.scrollTo(0, 0);
@@ -690,9 +481,23 @@ export function MarketDetail() {
     document.getElementById("updateMarketForm").click();
   };
 
-  const updateMarket = async (e) => {
+  const handleUpdateMarketSubmit = (e) => {
     e.preventDefault();
+    if (checkedVariants.countries?.length && tagOptionsSelected?.length) {
+      setMarketError();
+      updateMarket();
+    } else {
+      if (!checkedVariants.countries?.length) {
+        setMarketError("Country");
+        window.scrollTo(0, 0);
+      } else if (!tagOptionsSelected?.length) {
+        setMarketError("Vendor");
+        window.scrollTo(0, 0);
+      }
+    }
+  };
 
+  const updateMarket = async () => {
     setBtnLoading((prev) => {
       let toggleId;
       if (prev["updateMarket"]) {
@@ -702,15 +507,16 @@ export function MarketDetail() {
       }
       return { ...toggleId };
     });
+
     let data = {
       name: newMarket.name,
       description: newMarket.description,
       slug: newMarket.slug,
       toggle: convertBooleanToNumber(newMarket.status),
       vendor_id: tagOptionsSelected,
-      country_id: [1],
-      state_id: [1],
-      city_id: [1],
+      country_id: checkedVariants.countries,
+      state_id: checkedVariants.states,
+      city_id: checkedVariants.cities,
     };
 
     try {
@@ -727,7 +533,7 @@ export function MarketDetail() {
         setToastMsg(response?.data?.message);
         setErrorToast(true);
       } else {
-        setToastMsg(response?.data?.message);
+        setToastMsg("Market Updated Successfully!");
         setSucessToast(true);
         setToggleLoadData(true);
       }
@@ -820,7 +626,23 @@ export function MarketDetail() {
             loading: btnLoading["updateMarket"],
           }}
         >
-          <Form onSubmit={updateMarket}>
+          {marketError ? (
+            <>
+              <Banner
+                title="There is 1 error with this Market:"
+                status="critical"
+              >
+                <List>
+                  <List.Item>Specific {marketError} must be added</List.Item>
+                </List>
+              </Banner>
+              <br />
+            </>
+          ) : (
+            ""
+          )}
+
+          <Form onSubmit={handleUpdateMarketSubmit}>
             <FormLayout>
               <span className="VisuallyHidden">
                 <Button submit id="updateMarketForm">
@@ -881,11 +703,11 @@ export function MarketDetail() {
               <Card sectioned title="Country/State">
                 <Scrollable className="Market-Edit-Countries-Scroll">
                   <CheckboxTree
-                    nodes={continentsList}
+                    nodes={countriesList}
                     checked={checkedCountries}
-                    expanded={expandedContinent}
+                    expanded={expandedCountry}
                     onCheck={(checked) => setCheckedCountries(checked)}
-                    onExpand={(expanded) => setExpandedContinent(expanded)}
+                    onExpand={(expanded) => setExpandedCountry(expanded)}
                     icons={{
                       check: <img src={FillCheckBox} alt="checkbox" />,
                       halfCheck: (

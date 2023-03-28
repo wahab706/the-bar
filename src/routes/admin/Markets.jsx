@@ -27,6 +27,7 @@ import {
   SkeltonPageForTable,
   getAccessToken,
   InputField,
+  PaymentLoader,
 } from "../../components";
 import axios from "axios";
 import dateFormat from "dateformat";
@@ -125,6 +126,7 @@ export function Markets() {
       } else if (selectedTabIndex == 3) {
         setMarketStatus("archive");
       }
+      setMarketsLoading(true);
       setToggleLoadData(true);
     }
   };
@@ -217,7 +219,7 @@ export function Markets() {
   };
 
   const rowMarkup = markets?.map(
-    ({ id, name, slug, status, country }, index) => (
+    ({ id, name, slug, status, countries }, index) => (
       <IndexTable.Row
         id={id}
         key={id}
@@ -234,15 +236,16 @@ export function Markets() {
 
         <IndexTable.Cell className="Capitalize-Cell">
           <Text variant="headingSm" as="h6">
-            {country?.length > 0 ? (
+            {countries?.length && countries?.length > 1 ? (
               <>
-                <span>{country[0].name}</span>
+                <span>{countries[0].name}</span>
                 &nbsp;
-                <small>{`+ ${country?.length - 1} others`}</small>
+                <small>{`+ ${countries?.length - 1} others`}</small>
               </>
             ) : (
-              "---"
+              <span>{countries[0].name}</span>
             )}
+            {!countries?.length && "---"}
           </Text>
         </IndexTable.Cell>
 
@@ -707,7 +710,6 @@ export function Markets() {
                       { title: "" },
                     ]}
                   >
-                    {/* <div className="Logout-Processing">loading...</div> */}
                     {rowMarkup}
                   </IndexTable>
                 </Card.Section>
