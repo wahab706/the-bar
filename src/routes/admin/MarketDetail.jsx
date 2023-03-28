@@ -30,6 +30,7 @@ import {
   Modal,
   OptionList,
   Autocomplete,
+  Badge,
 } from "@shopify/polaris";
 import {
   SearchMinor,
@@ -63,14 +64,20 @@ export function MarketDetail() {
   const [errorToast, setErrorToast] = useState(false);
   const [sucessToast, setSucessToast] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
-  const [discountId, setDiscountId] = useState();
+  const [marketName, setMarketName] = useState("");
+  const [marketStatus, setMarketStatus] = useState("");
+  const [marketId, setMarketId] = useState("");
   const [discardModal, setDiscardModal] = useState(false);
+  const [vendorsList, setVendorsList] = useState([]);
 
   const [newMarket, setNewMarket] = useState({
     name: "Asia Market",
     slug: "asia-market",
     description: "",
     status: true,
+    country: [],
+    state: [],
+    city: [],
   });
 
   const handleNewMarketDetails = (e) => {
@@ -82,33 +89,19 @@ export function MarketDetail() {
   };
 
   useEffect(() => {
-    if (newMarket.name) {
-      setNewMarket({
-        slug: newMarket.name.toLowerCase().replace(" ", "-"),
-      });
-    }
+    setNewMarket({
+      slug: newMarket.name?.replace(/\s+/g, "-").toLowerCase(),
+      name: newMarket.name,
+      description: newMarket.description,
+      status: newMarket.status,
+    });
   }, [newMarket.name]);
 
   // -------------------Tags------------------------
-  const TagsOptionsData = useMemo(
-    () => [
-      { value: "men", label: "Men" },
-      { value: "women", label: "Women" },
-      { value: "kids", label: "Kids" },
-      { value: "tops", label: "Tops" },
-      { value: "shoes", label: "Shoes" },
-      { value: "jackets", label: "Jackets" },
-      { value: "sale", label: "Sale" },
-      { value: "new-arrival", label: "New Arrival" },
-      { value: "special-occasion", label: "Special Occasion" },
-      { value: "birthday-dresses", label: "Birthday Dresses" },
-    ],
-    []
-  );
 
   const [tagOptionsSelected, setTagOptionsSelected] = useState("");
   const [tagInputValue, setTagInputValue] = useState("");
-  const [tagOptions, setTagOptions] = useState(TagsOptionsData);
+  const [tagOptions, setTagOptions] = useState([]);
   const [tagsModal, setTagsModal] = useState(false);
   const [optionsLoading, setOptionsLoading] = useState(false);
   const handleTagsModal = useCallback(
@@ -126,24 +119,38 @@ export function MarketDetail() {
 
       setTimeout(() => {
         if (value === "") {
-          setTagOptions(TagsOptionsData);
+          let list = [];
+          vendorsList?.map((item) => {
+            list.push({
+              value: item.id,
+              label: item.name,
+            });
+          });
+          setTagOptions(list);
           setOptionsLoading(false);
           return;
         }
 
         const filterRegex = new RegExp(value, "i");
-        const resultOptions = TagsOptionsData.filter((option) =>
-          option.label.match(filterRegex)
+        const resultOptions = vendorsList.filter((option) =>
+          option.name.match(filterRegex)
         );
         let endIndex = resultOptions.length - 1;
         if (resultOptions.length === 0) {
           endIndex = 0;
         }
-        setTagOptions(resultOptions);
+        let list = [];
+        resultOptions?.map((item) => {
+          list.push({
+            value: item.id,
+            label: item.name,
+          });
+        });
+        setTagOptions(list);
         setOptionsLoading(false);
       }, 300);
     },
-    [TagsOptionsData, optionsLoading, tagOptionsSelected]
+    [vendorsList, optionsLoading, tagOptionsSelected]
   );
 
   const removeTag = useCallback(
@@ -161,7 +168,11 @@ export function MarketDetail() {
         <Stack spacing="extraTight" alignment="center">
           {tagOptionsSelected.map((option) => {
             let tagLabel = "";
-            tagLabel = option.replace("_", " ");
+            let title = vendorsList?.find((obj) => obj.id == option);
+            if (title) {
+              tagLabel = title.name;
+            }
+            tagLabel = tagLabel.replace("_", " ");
             tagLabel = tagTitleCase(tagLabel);
             return (
               <Tag key={`option${option}`} onRemove={removeTag(option)}>
@@ -183,9 +194,11 @@ export function MarketDetail() {
 
   const tagTextField = (
     <Autocomplete.TextField
+      autoComplete={false}
       onChange={tagUpdateText}
       label="Vendors"
       value={tagInputValue}
+      prefix={<Icon source={SearchMinor} color="base" />}
       placeholder="Select Vendors"
       // verticalContent={tagsContentMarkup}
     />
@@ -211,7 +224,7 @@ export function MarketDetail() {
 
   function convertBooleanToNumber(value) {
     let booleanValue;
-    if (value === true) {
+    if (value == true) {
       booleanValue = 1;
     } else {
       booleanValue = 0;
@@ -222,7 +235,7 @@ export function MarketDetail() {
 
   function convertNumberToBoolean(value) {
     let booleanValue;
-    if (value === 1) {
+    if (value == 1) {
       booleanValue = true;
     } else {
       booleanValue = false;
@@ -238,19 +251,15 @@ export function MarketDetail() {
     setDiscardModal(!discardModal);
   };
 
-  const handleUpdateMarket = () => {
-    document.getElementById("updateMarketForm").click();
-  };
-
   // =================Countries Modal Code Start Here================
   const [countriesModal, setCountriesModal] = useState(false);
   const [allCountriesChecked, setAllCountriesChecked] = useState(true);
   const [expandedContinent, setExpandedContinent] = useState([]);
   const [continentsList, setContinentsList] = useState([]);
-  //   const [allCountries, setAllCountries] = useState([]);
+  const [allCountries, setAllCountries] = useState([]);
   const [checkedCountries, setCheckedCountries] = useState([]);
   const [previousCheckedCountries, setPreviousCheckedCountries] = useState([]);
-  const allCountries = [
+  const allCountriesData = [
     {
       id: 1,
       name: "United States",
@@ -551,10 +560,190 @@ export function MarketDetail() {
   }
 
   useEffect(() => {
-    setContinentsList(groupCountries(allCountries));
+    setContinentsList(groupCountries(allCountriesData));
   }, []);
 
   // =================Countries Modal Code Ends Here================
+  const getCounriesList = async () => {
+    try {
+      const response = await axios.post(
+        `${apiUrl}/api/country`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${getAccessToken()}` },
+        }
+      );
+
+      // console.log("getCounriesList response: ", response.data?.countries);
+      if (!response?.data?.success) {
+        setToastMsg(response?.data?.message);
+        setErrorToast(true);
+      } else {
+        setAllCountries(response.data?.countries);
+      }
+    } catch (error) {
+      console.warn("Get CounriesList Api Error", error.response);
+      setBtnLoading(false);
+      if (error.response?.message) {
+        setToastMsg(error.response?.message);
+      } else {
+        setToastMsg("Something Went Wrong, Try Again!");
+      }
+      setErrorToast(true);
+    }
+  };
+
+  const getVendorsList = async () => {
+    try {
+      const response = await axios.post(
+        `${apiUrl}/api/vendors/list`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${getAccessToken()}` },
+        }
+      );
+
+      console.log("getVendorsList response: ", response.data?.vendors);
+      if (!response?.data?.success) {
+        setToastMsg(response?.data?.message);
+        setErrorToast(true);
+      } else {
+        setVendorsList(response.data?.vendors);
+        let list = [];
+        response.data?.vendors?.map((item) => {
+          list.push({
+            value: item.id,
+            label: item.name,
+          });
+        });
+        // setVendorsList(list);
+        setTagOptions(list);
+      }
+    } catch (error) {
+      console.warn("Get VendorsList Api Error", error.response);
+      setBtnLoading(false);
+      if (error.response?.message) {
+        setToastMsg(error.response?.message);
+      } else {
+        setToastMsg("Something Went Wrong, Try Again!");
+      }
+      setErrorToast(true);
+    }
+  };
+
+  useEffect(() => {
+    getCounriesList();
+    getVendorsList();
+  }, []);
+
+  const editMarket = async (id) => {
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        `${apiUrl}/api/market/${id}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${getAccessToken()}` },
+        }
+      );
+
+      // console.log("editMarket response: ", response.data);
+      if (!response?.data?.success) {
+        setToastMsg(response?.data?.message);
+        setErrorToast(true);
+      } else {
+        let marketResponse = response.data?.market_detail;
+        setMarketId(marketResponse?.id);
+        setMarketName(marketResponse?.name);
+        setMarketStatus(marketResponse?.status);
+        setNewMarket({
+          name: marketResponse?.name,
+          description: marketResponse?.description,
+          slug: marketResponse?.slug,
+          status: convertNumberToBoolean(marketResponse?.status),
+        });
+        setLoading(false);
+        setToggleLoadData(false);
+        window.scrollTo(0, 0);
+      }
+
+      setBtnLoading(false);
+    } catch (error) {
+      console.warn("editMarket Api Error", error.response);
+      setBtnLoading(false);
+      if (error.response?.message) {
+        setToastMsg(error.response?.message);
+      } else {
+        setToastMsg("Something Went Wrong, Try Again!");
+      }
+      setErrorToast(true);
+    }
+  };
+
+  useEffect(() => {
+    if (toggleLoadData) {
+      editMarket(params.marketId);
+    }
+  }, [toggleLoadData]);
+
+  const handleUpdateMarket = () => {
+    document.getElementById("updateMarketForm").click();
+  };
+
+  const updateMarket = async (e) => {
+    e.preventDefault();
+
+    setBtnLoading((prev) => {
+      let toggleId;
+      if (prev["updateMarket"]) {
+        toggleId = { ["updateMarket"]: false };
+      } else {
+        toggleId = { ["updateMarket"]: true };
+      }
+      return { ...toggleId };
+    });
+    let data = {
+      name: newMarket.name,
+      description: newMarket.description,
+      slug: newMarket.slug,
+      toggle: convertBooleanToNumber(newMarket.status),
+      vendor_id: tagOptionsSelected,
+      country_id: [1],
+      state_id: [1],
+      city_id: [1],
+    };
+
+    try {
+      const response = await axios.post(
+        `${apiUrl}/api/update/market/${marketId}`,
+        data,
+        {
+          headers: { Authorization: `Bearer ${getAccessToken()}` },
+        }
+      );
+
+      // console.log("updateMarket response: ", response.data);
+      if (!response?.data?.success) {
+        setToastMsg(response?.data?.message);
+        setErrorToast(true);
+      } else {
+        setToastMsg(response?.data?.message);
+        setSucessToast(true);
+        setToggleLoadData(true);
+      }
+
+      setBtnLoading(false);
+    } catch (error) {
+      console.warn("updateMarket Api Error", error.response);
+      setBtnLoading(false);
+      if (error.response?.message) {
+        setToastMsg(error.response?.message);
+      } else {
+        setToastMsg("Something Went Wrong, Try Again!");
+      }
+      setErrorToast(true);
+    }
+  };
 
   return (
     <div className="Discount-Detail-Page  Market-Detail-Page">
@@ -594,18 +783,20 @@ export function MarketDetail() {
       >
         <Modal.Section>
           <div className="Modal-Product-Tags">
-            <OptionList
-              title="AVAILABLE"
-              onChange={setTagOptionsSelected}
-              options={TagsOptionsData}
-              selected={tagOptionsSelected}
-              allowMultiple
-            />
+            <Scrollable className="Market-Edit-Vendors-Scroll">
+              <OptionList
+                title="AVAILABLE"
+                onChange={setTagOptionsSelected}
+                options={tagOptions}
+                selected={tagOptionsSelected}
+                allowMultiple
+              />
+            </Scrollable>
           </div>
         </Modal.Section>
       </Modal>
 
-      {!loading ? (
+      {loading ? (
         <span>
           <Loading />
           <SkeltonPageForProductDetail />
@@ -613,14 +804,23 @@ export function MarketDetail() {
       ) : (
         <Page
           breadcrumbs={[{ content: "Markets", onAction: handleDiscardModal }]}
-          title={"Asia Market"}
+          title={marketName}
+          titleMetadata={
+            marketStatus == 0 ? (
+              <Badge status="info">Draft</Badge>
+            ) : marketStatus == 1 ? (
+              <Badge status="success">Active</Badge>
+            ) : marketStatus == 2 ? (
+              <Badge status="critical">Archived</Badge>
+            ) : null
+          }
           primaryAction={{
             content: "Save Market",
             onAction: handleUpdateMarket,
-            loading: btnLoading,
+            loading: btnLoading["updateMarket"],
           }}
         >
-          <Form onSubmit={""}>
+          <Form onSubmit={updateMarket}>
             <FormLayout>
               <span className="VisuallyHidden">
                 <Button submit id="updateMarketForm">
@@ -738,6 +938,17 @@ export function MarketDetail() {
               </Card>
             </FormLayout>
           </Form>
+
+          <div className="Polaris-Product-Actions">
+            <br />
+            <PageActions
+              primaryAction={{
+                content: "Save Market",
+                onAction: handleUpdateMarket,
+                loading: btnLoading["updateMarket"],
+              }}
+            />
+          </div>
         </Page>
       )}
       {toastErrorMsg}

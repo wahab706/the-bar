@@ -19,6 +19,7 @@ import {
   Tooltip,
   ButtonGroup,
   Button,
+  TextContainer,
 } from "@shopify/polaris";
 import { SearchMinor, DeleteMinor, EditMinor } from "@shopify/polaris-icons";
 import { AppContext } from "../../components/providers/ContextProvider";
@@ -71,29 +72,26 @@ export function Markets() {
   const [btnLoading, setBtnLoading] = useState(false);
   const [tableLoading, setTableLoading] = useState(false);
   const [marketsLoading, setMarketsLoading] = useState(false);
-  const [selected, setSelected] = useState(0);
+  const [selectedTab, setSelectedTab] = useState(0);
   const [queryValue, setQueryValue] = useState("");
   const [toggleLoadData, setToggleLoadData] = useState(true);
   const [errorToast, setErrorToast] = useState(false);
   const [sucessToast, setSucessToast] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
-  const [storeUrl, setStoreUrl] = useState("");
 
   const [marketModal, setMarketModal] = useState(false);
-  const [markets, setMarkets] = useState(marketsData);
-  const [hasNextPage, setHasNextPage] = useState(false);
-  const [hasPreviousPage, setHasPreviousPage] = useState(false);
-  const [pageCursor, setPageCursor] = useState("next");
-  const [pageCursorValue, setPageCursorValue] = useState("");
-  const [nextPageCursor, setNextPageCursor] = useState("");
-  const [previousPageCursor, setPreviousPageCursor] = useState("");
+  const [deleteMarketModal, setDeleteMarketModal] = useState(false);
+  const [marketId, setMarketId] = useState();
+  const [markets, setMarkets] = useState([]);
   const [marketStatus, setMarketStatus] = useState("");
+  const [pagination, setPagination] = useState(1);
+  const [paginationUrl, setPaginationUrl] = useState([]);
 
   const [newMarket, setNewMarket] = useState({
     name: "",
     slug: "",
     description: "",
-    status: false,
+    status: true,
   });
 
   const handleNewMarketDetails = (e) => {
@@ -105,29 +103,29 @@ export function Markets() {
   };
 
   useEffect(() => {
-    if (newMarket.name) {
-      setNewMarket({
-        slug: newMarket.name.toLowerCase().replace(" ", "-"),
-      });
-    }
+    setNewMarket({
+      slug: newMarket.name?.replace(/\s+/g, "-").toLowerCase(),
+      name: newMarket.name,
+      description: newMarket.description,
+      status: newMarket.status,
+    });
   }, [newMarket.name]);
 
   // ---------------------Tabs Code Start Here----------------------
 
   const handleTabChange = (selectedTabIndex) => {
-    if (selected != selectedTabIndex) {
-      setSelected(selectedTabIndex);
+    if (selectedTab != selectedTabIndex) {
+      setSelectedTab(selectedTabIndex);
       if (selectedTabIndex == 0) {
         setMarketStatus("");
       } else if (selectedTabIndex == 1) {
-        setMarketStatus("ACTIVE");
+        setMarketStatus("active");
       } else if (selectedTabIndex == 2) {
-        setMarketStatus("DRAFT");
+        setMarketStatus("draft");
       } else if (selectedTabIndex == 3) {
-        setMarketStatus("ARCHIVED");
+        setMarketStatus("archive");
       }
-      setPageCursorValue("");
-      // setToggleLoadData(true);
+      setToggleLoadData(true);
     }
   };
 
@@ -156,7 +154,7 @@ export function Markets() {
       name: "",
       slug: "",
       description: "",
-      status: false,
+      status: true,
     });
   };
 
@@ -180,7 +178,7 @@ export function Markets() {
 
   function convertBooleanToNumber(value) {
     let booleanValue;
-    if (value === true) {
+    if (value == true) {
       booleanValue = 1;
     } else {
       booleanValue = 0;
@@ -191,7 +189,7 @@ export function Markets() {
 
   function convertNumberToBoolean(value) {
     let booleanValue;
-    if (value === 1) {
+    if (value == 1) {
       booleanValue = true;
     } else {
       booleanValue = false;
@@ -201,26 +199,14 @@ export function Markets() {
 
   // ---------------------Tag/Filter Code Start Here----------------------
   const handleQueryValueRemove = () => {
-    setPageCursorValue("");
     setQueryValue("");
     setToggleLoadData(true);
   };
   const handleFiltersQueryChange = (value) => {
-    setPageCursorValue("");
     setQueryValue(value);
     setTimeout(() => {
       setToggleLoadData(true);
     }, 1000);
-  };
-
-  const handlePagination = (value) => {
-    if (value == "next") {
-      setPageCursorValue(nextPageCursor);
-    } else {
-      setPageCursorValue(previousPageCursor);
-    }
-    setPageCursor(value);
-    setToggleLoadData(true);
   };
 
   // ---------------------Index Table Code Start Here----------------------
@@ -230,159 +216,328 @@ export function Markets() {
     plural: "Markets",
   };
 
-  const rowMarkup = markets?.map(({ id, name, status, countries }, index) => (
-    <IndexTable.Row id={id} key={id} position={index}>
-      <IndexTable.Cell className="Polaris-IndexTable-Product-Column">
-        <Text variant="bodyMd" fontWeight="semibold" as="span">
-          {name}
-        </Text>
-      </IndexTable.Cell>
-
-      <IndexTable.Cell>
-        <span
-          className="small-tgl-btn"
-          // onClick={() => updateShippingStatus(id, status)}
-        >
-          <input
-            id={id}
-            type="checkbox"
-            className="tgl tgl-light"
-            onChange={() => ""}
-            checked={status}
-          />
-          <label htmlFor={id} className="tgl-btn"></label>
-        </span>
-      </IndexTable.Cell>
-
-      <IndexTable.Cell className="Capitalize-Cell">
-        {countries == "all" ? (
-          <Text variant="headingSm" as="h6">
-            <span>🌍</span>
-            &nbsp;
-            <span>All countries</span>
+  const rowMarkup = markets?.map(
+    ({ id, name, slug, status, country }, index) => (
+      <IndexTable.Row
+        id={id}
+        key={id}
+        position={index}
+        disabled={marketsLoading}
+      >
+        <IndexTable.Cell className="Polaris-IndexTable-Product-Column">
+          <Text variant="bodyMd" fontWeight="semibold" as="span">
+            {name}
           </Text>
-        ) : (
+        </IndexTable.Cell>
+
+        <IndexTable.Cell>{slug}</IndexTable.Cell>
+
+        <IndexTable.Cell className="Capitalize-Cell">
           <Text variant="headingSm" as="h6">
-            <span>Afghanistan</span>
-            &nbsp;
-            <small>{`+ ${countries} others`}</small>
+            {country?.length > 0 ? (
+              <>
+                <span>{country[0].name}</span>
+                &nbsp;
+                <small>{`+ ${country?.length - 1} others`}</small>
+              </>
+            ) : (
+              "---"
+            )}
           </Text>
-        )}
-      </IndexTable.Cell>
+        </IndexTable.Cell>
 
-      <IndexTable.Cell className="Polaris-IndexTable-Delete-Column">
-        <ButtonGroup>
-          <Tooltip content="Edit Market">
-            <Button onClick={() => editMarket(id)}>
-              <Icon source={EditMinor}></Icon>
-            </Button>
-          </Tooltip>
+        <IndexTable.Cell>
+          <span
+            className="small-tgl-btn"
+            onClick={() => updateMarketStatus(id, status)}
+          >
+            <input
+              id={id}
+              type="checkbox"
+              className="tgl tgl-light"
+              onChange={() => ""}
+              checked={convertNumberToBoolean(status)}
+            />
+            <label htmlFor={id} className="tgl-btn"></label>
+          </span>
+        </IndexTable.Cell>
 
-          <Tooltip content="Move to Archive">
-            <Button
-            // onClick={() => handleDeleteTax(id)}
-            >
-              <Icon source={DeleteMinor}></Icon>
-            </Button>
-          </Tooltip>
-        </ButtonGroup>
-      </IndexTable.Cell>
-    </IndexTable.Row>
-  ));
+        <IndexTable.Cell className="Polaris-IndexTable-Delete-Column">
+          <ButtonGroup>
+            <Tooltip content="Edit Market">
+              <Button onClick={() => editMarket(id)}>
+                <Icon source={EditMinor}></Icon>
+              </Button>
+            </Tooltip>
+
+            <Tooltip content={selectedTab == 3 ? "Delete" : "Move to Archive"}>
+              <Button onClick={() => handleDeleteMarket(id)}>
+                <Icon source={DeleteMinor}></Icon>
+              </Button>
+            </Tooltip>
+          </ButtonGroup>
+        </IndexTable.Cell>
+      </IndexTable.Row>
+    )
+  );
 
   const emptyStateMarkup = (
     <EmptySearchResult title={"No Markets Found"} withIllustration />
   );
 
-  const handleClearStates = () => {
-    setMarkets([]);
-    setPageCursorValue("");
-    setNextPageCursor("");
-    setPreviousPageCursor("");
+  const handleDeleteMarket = (id) => {
+    setMarketId(id);
+    setDeleteMarketModal(true);
+  };
+
+  const handleDeleteMarketModal = () => {
+    setDeleteMarketModal(!deleteMarketModal);
+    setMarketId();
+  };
+
+  const editMarket = (id) => {
+    navigate(`/market/${id}`);
+  };
+
+  const handlePaginationTabs = (active, url) => {
+    if (!active && url != null) {
+      let link = url.split("page=")[1];
+      setPagination(link);
+      setToggleLoadData(true);
+    }
+  };
+
+  const ConvertStr = ({ value }) => {
+    let label = value.replace("&raquo;", "»").replace("&laquo;", "«");
+    return label;
   };
 
   // ---------------------Api Code starts Here----------------------
 
-  const getOrders = async () => {
+  const getMarkets = async () => {
     setMarketsLoading(true);
     try {
-      const response = await axios.get(
-        `${apiUrl}/api/shopify/order?title=${queryValue}&${pageCursor}=${pageCursorValue}&status=${marketStatus}`,
+      const response = await axios.post(
+        `${apiUrl}/api/markets?status=${marketStatus}&page=${pagination}&query=${queryValue}`,
+        {},
         {
           headers: { Authorization: `Bearer ${getAccessToken()}` },
         }
       );
 
-      // console.log('getOrders response: ', response.data);
-      if (response.data.errors) {
-        setToastMsg(response.data.message);
+      console.log("getMarkets response: ", response.data);
+      if (!response?.data?.success) {
+        setToastMsg(response?.data?.message);
         setErrorToast(true);
       } else {
-        let markets = response.data.data.body?.data?.markets;
-        let ordersArray = [];
-        let nextValue = "";
-
-        if (markets?.edges?.length > 0) {
-          let previousValue = markets.edges[0]?.cursor;
-          markets?.edges?.map((item) => {
-            nextValue = item.cursor;
-            ordersArray.push({
-              id: item.node.id.replace("gid://shopify/Order/", ""),
-              name: item.node.name,
-              date: item.node.processedAt,
-              quantity: item.node.currentSubtotalLineItemsQuantity,
-              paymentStatus: item.node.displayFinancialStatus,
-              fulfillmentStatus: item.node.displayFulfillmentStatus,
-              deliveryMethod: item.node.shippingLine?.title,
-              customerFName: item.node.customer?.firstName,
-              customerLName: item.node.customer?.lastName,
-            });
-          });
-
-          setMarkets(ordersArray);
-          setPageCursorValue("");
-          setNextPageCursor(nextValue);
-          setPreviousPageCursor(previousValue);
-          setHasNextPage(markets.pageInfo?.hasNextPage);
-          setHasPreviousPage(markets.pageInfo?.hasPreviousPage);
-        } else {
-          handleClearStates();
-        }
-        setStoreUrl(response.data.user?.shopifyShopDomainName);
+        setMarkets(response.data?.markets?.data);
+        setPaginationUrl(response.data.markets?.links);
+        setLoading(false);
+        setMarketsLoading(false);
+        setToggleLoadData(false);
       }
-
+    } catch (error) {
+      console.warn("getMarkets Api Error", error.response);
       setLoading(false);
       setMarketsLoading(false);
-      setToggleLoadData(false);
-    } catch (error) {
-      console.warn("getOrders Api Error", error.response);
-      setLoading(false);
-      // setMarketsLoading(false)
-      setToastMsg("Server Error");
+      if (error.response?.message) {
+        setToastMsg(error.response?.message);
+      } else {
+        setToastMsg("Something Went Wrong, Try Again!");
+      }
       setToggleLoadData(false);
       setErrorToast(true);
-      handleClearStates();
     }
   };
 
-  // useEffect(() => {
-  //   if (toggleLoadData) {
-  //     getOrders();
-  //   }
-  // }, [toggleLoadData]);
+  const updateMarketStatus = async (id, value) => {
+    let enableValue = "";
+    if (value == 0) {
+      enableValue = 1;
+    } else {
+      enableValue = 0;
+    }
+
+    let data = {
+      toggle: enableValue,
+    };
+
+    try {
+      const response = await axios.post(
+        `${apiUrl}/api/market/status/${id}`,
+        data,
+        {
+          headers: { Authorization: `Bearer ${getAccessToken()}` },
+        }
+      );
+      if (response?.data?.success) {
+        setToastMsg(response?.data?.message);
+        setSucessToast(true);
+      } else {
+        setToastMsg(response?.data?.message);
+        setErrorToast(true);
+      }
+      setToggleLoadData(true);
+    } catch (error) {
+      console.warn("updateOfferStatus Api Error", error.response);
+      if (error.response?.message) {
+        setToastMsg(error.response?.message);
+      } else {
+        setToastMsg("Something Went Wrong, Try Again!");
+      }
+      setErrorToast(true);
+    }
+  };
+
+  const deleteMarket = async () => {
+    setBtnLoading((prev) => {
+      let toggleId;
+      if (prev["deleteMarket"]) {
+        toggleId = { ["deleteMarket"]: false };
+      } else {
+        toggleId = { ["deleteMarket"]: true };
+      }
+      return { ...toggleId };
+    });
+    try {
+      const response = await axios.post(
+        `${apiUrl}/api/delete/market/${marketId}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${getAccessToken()}` },
+        }
+      );
+      // console.log("response", response?.data);
+      if (!response?.data?.success) {
+        setToastMsg(response?.data?.message);
+        setErrorToast(true);
+      } else {
+        setToastMsg(response?.data?.message);
+        setSucessToast(true);
+        setDeleteMarketModal(false);
+        setMarketId();
+        setToggleLoadData(true);
+      }
+      setBtnLoading(false);
+    } catch (error) {
+      console.warn("deleteMarket Api Error", error.response);
+      setBtnLoading(false);
+      if (error.response?.message) {
+        setToastMsg(error.response?.message);
+      } else {
+        setToastMsg("Something Went Wrong, Try Again!");
+      }
+      setErrorToast(true);
+    }
+  };
+
+  const archiveMarket = async () => {
+    setBtnLoading((prev) => {
+      let toggleId;
+      if (prev["deleteMarket"]) {
+        toggleId = { ["deleteMarket"]: false };
+      } else {
+        toggleId = { ["deleteMarket"]: true };
+      }
+      return { ...toggleId };
+    });
+    try {
+      const response = await axios.post(
+        `${apiUrl}/api/market/add/archive/${marketId}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${getAccessToken()}` },
+        }
+      );
+      console.log("response", response?.data);
+      if (!response?.data?.success) {
+        setToastMsg(response?.data?.message);
+        setErrorToast(true);
+      } else {
+        setToastMsg(response?.data?.message);
+        setSucessToast(true);
+        setDeleteMarketModal(false);
+        setMarketId();
+        setToggleLoadData(true);
+      }
+      setBtnLoading(false);
+    } catch (error) {
+      console.warn("Archive Market Api Error", error.response);
+      setBtnLoading(false);
+      if (error.response?.message) {
+        setToastMsg(error.response?.message);
+      } else {
+        setToastMsg("Something Went Wrong, Try Again!");
+      }
+      setErrorToast(true);
+    }
+  };
+
+  useEffect(() => {
+    if (toggleLoadData) {
+      getMarkets();
+    }
+  }, [toggleLoadData]);
 
   const handleAddNewMarket = () => {
     document.getElementById("addNewMarketForm").click();
   };
 
-  const addNewMarket = (e) => {
+  const addNewMarket = async (e) => {
     e.preventDefault();
-    navigate(`/market/${"1"}`);
-    // alert("new market added");
-  };
 
-  const editMarket = (id) => {
-    navigate(`/market/${id}`);
+    setBtnLoading((prev) => {
+      let toggleId;
+      if (prev["addMarket"]) {
+        toggleId = { ["addMarket"]: false };
+      } else {
+        toggleId = { ["addMarket"]: true };
+      }
+      return { ...toggleId };
+    });
+
+    let data = {
+      name: newMarket.name,
+      description: newMarket.description,
+      slug: newMarket.slug,
+      toggle: convertBooleanToNumber(newMarket.status),
+    };
+
+    try {
+      const response = await axios.post(`${apiUrl}/api/market/save`, data, {
+        headers: { Authorization: `Bearer ${getAccessToken()}` },
+      });
+
+      // console.log("createOffer response: ", response.data);
+
+      if (!response?.data?.success) {
+        setToastMsg(response?.data?.message);
+        setErrorToast(true);
+      } else {
+        setBtnLoading(false);
+        setDeleteMarketModal(false);
+        setToastMsg(response.data?.message);
+        setSucessToast(true);
+        if (response?.data?.market?.id) {
+          setTimeout(() => {
+            navigate(`/market/${response?.data?.market?.id}`);
+          }, 500);
+        }
+      }
+
+      setBtnLoading(false);
+    } catch (error) {
+      console.warn("createOffer Api Error", error.response);
+      if (error.response?.status == 400) {
+        if (error.response?.data?.errors?.name) {
+          setToastMsg(error.response?.data?.errors?.name[0]);
+        }
+      } else {
+        setToastMsg("Something Went Wrong, Try Again!");
+      }
+      setErrorToast(true);
+      setBtnLoading(false);
+    }
   };
 
   return (
@@ -430,10 +585,11 @@ export function Markets() {
                       type="text"
                       label="Slug"
                       name="slug"
+                      disabled
                       value={newMarket.slug}
+                      required
                       onChange={handleNewMarketDetails}
                       autoComplete="off"
-                      required
                       placeholder="Slug"
                     />
                   </FormLayout.Group>
@@ -442,6 +598,7 @@ export function Markets() {
                     type="text"
                     label="Description (optional)"
                     name="description"
+                    required
                     value={newMarket.description}
                     onChange={handleNewMarketDetails}
                     autoComplete="off"
@@ -468,7 +625,34 @@ export function Markets() {
         </Modal.Section>
       </Modal>
 
-      {!loading ? (
+      <Modal
+        small
+        open={deleteMarketModal}
+        onClose={handleDeleteMarketModal}
+        title={selectedTab == 3 ? "Delete Market" : "Archive Market?"}
+        loading={btnLoading["deleteMarket"]}
+        primaryAction={{
+          content: selectedTab == 3 ? "Delete" : "Archive?",
+          destructive: true,
+          disabled: btnLoading["deleteMarket"],
+          onAction: selectedTab == 3 ? deleteMarket : archiveMarket,
+        }}
+        secondaryActions={[
+          {
+            content: "Cancel",
+            disabled: btnLoading["deleteMarket"],
+            onAction: handleDeleteMarketModal,
+          },
+        ]}
+      >
+        <Modal.Section>
+          <TextContainer>
+            <p>Are you sure? This action can not be undone.</p>
+          </TextContainer>
+        </Modal.Section>
+      </Modal>
+
+      {loading ? (
         <span>
           <Loading />
           <SkeltonPageForTable />
@@ -485,7 +669,7 @@ export function Markets() {
           <Card>
             <Tabs
               tabs={tabs}
-              selected={selected}
+              selected={selectedTab}
               onSelect={handleTabChange}
               disclosureText="More views"
             >
@@ -514,25 +698,39 @@ export function Markets() {
                     emptyState={emptyStateMarkup}
                     headings={[
                       { title: "Name" },
-                      { title: "Active/Draft" },
+                      { title: "Slug" },
                       { title: "Countries" },
-                      // { title: "" },
+                      {
+                        title:
+                          selectedTab == 3 ? "Move to Draft" : "Active/Draft",
+                      },
+                      { title: "" },
                     ]}
                   >
+                    {/* <div className="Logout-Processing">loading...</div> */}
                     {rowMarkup}
                   </IndexTable>
                 </Card.Section>
 
-                {/* <Card.Section>
-                  <div className="data-table-pagination">
-                    <Pagination
-                      hasPrevious={hasPreviousPage ? true : false}
-                      onPrevious={() => handlePagination("prev")}
-                      hasNext={hasNextPage ? true : false}
-                      onNext={() => handlePagination("next")}
-                    />
-                  </div>
-                </Card.Section> */}
+                {markets?.length > 0 && (
+                  <Card.Section>
+                    <div className="data-table-pagination Pagination-Section">
+                      {paginationUrl?.map((item) => {
+                        return (
+                          <Button
+                            disabled={item.url === null}
+                            primary={item.active}
+                            onClick={() =>
+                              handlePaginationTabs(item.active, item.url)
+                            }
+                          >
+                            <ConvertStr value={item.label} />
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  </Card.Section>
+                )}
               </div>
             </Tabs>
           </Card>

@@ -84,78 +84,49 @@ function AuthProvider(props) {
 
   const AuthCheck = async () => {
     try {
-      const response = await axios.get(`${props.apiUrl}/api/store/check`, {
-        headers: { Authorization: `Bearer ${getAccessToken()}` },
-      });
-
-      // console.log('AuthCheck response: ', response?.data);
-
-      if (response.data.errors) {
-        alert(response.data.message);
-      } else {
-        if (response.data.user?.email_verified_at == null) {
-          navigate(`/sign-up-status?email=${response.data.user?.email}`);
-        } else {
-          dispatch({
-            user: response.data.user,
-          });
-
-          if (
-            location.pathname == "/login" ||
-            location.pathname == "/sign-up" ||
-            location.pathname == "/sign-up-status" ||
-            (location.pathname == "/reset-password") |
-              (location.pathname == "/change-passwords") ||
-            location.pathname == "/admin/store-connect"
-          ) {
-            navigate("/");
-          }
+      const response = await axios.post(
+        `${props.apiUrl}/api/check/auth`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${getAccessToken()}` },
         }
-        setLoading(false);
+      );
+
+      // console.log("AuthCheck response: ", response?.data);
+
+      if (!response.data.status) {
+        navigate("/login");
+      } else {
+        dispatch({
+          user: response.data?.user && response.data?.user,
+          userToken: response.data?.access_token,
+          userRole: response.data?.role && response.data?.role,
+        });
+
+        if (
+          location.pathname == "/login" ||
+          (location.pathname == "/reset-password") |
+            (location.pathname == "/change-passwords")
+        ) {
+          navigate("/");
+        }
       }
+      setLoading(false);
     } catch (error) {
       console.warn("AuthCheck Api Error", error.response?.data);
-      if (location.pathname == "/sign-up") {
-        setLoading(false);
-        navigate("/sign-up");
-      } else if (location.pathname == "/reset-password") {
-        setLoading(false);
+      if (location.pathname == "/reset-password") {
         navigate("/reset-password");
       } else if (location.pathname == "/change-password") {
-        setLoading(false);
         navigate("/change-password");
       } else {
-        if (error.response?.status == 401) {
-          setLoading(false);
-          navigate("/login");
-        } else if (error.response?.status == 403) {
-          setLoading(false);
-          navigate(
-            `/sign-up-status?email=${error.response?.data?.data?.user?.email}`
-          );
-        } else if (error.response?.status == 402) {
-          setLoading(false);
-          navigate("/admin/store-connect");
-        } else {
-          if (error.response?.data?.message) {
-            setToastMsg(error.response?.data?.message);
-          } else {
-            setToastMsg(<ErrorPage />);
-          }
-          setErrorToast(true);
-        }
+        navigate("/login");
       }
+      setLoading(false);
     }
   };
 
-  const AuthTest = () => {
-    setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-  };
-
   useEffect(() => {
-    AuthTest();
+    AuthCheck();
   }, []);
 
   return (

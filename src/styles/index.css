@@ -1704,6 +1704,10 @@
 }
 
 /* ----------------Market Page--------------------- */
+.Product-Tags-Stack {
+  margin-top: 0.5rem;
+}
+
 .Sheet-Market {
   padding: 2px;
 }
@@ -1714,12 +1718,35 @@
   justify-content: center;
 }
 
+.Markets-Page .Polaris-Card .Polaris-Card__Section:last-child {
+  border-top: unset;
+}
+
+.Pagination-Section {
+  /* margin: 1rem auto; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.Pagination-Section .Polaris-Button {
+  margin-left: 5px;
+}
+
+.Pagination-Section .Polaris-Button:first-child {
+  margin: 0;
+}
+
 .Market-Detail-Page {
   margin-bottom: 2rem;
 }
 
 .Market-Edit-Countries-Scroll {
   max-height: 370px;
+}
+
+.Market-Edit-Vendors-Scroll {
+  max-height: 400px;
 }
 
 .Market-Detail-Page
