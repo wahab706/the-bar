@@ -345,7 +345,7 @@ export function Markets() {
       }
       setToggleLoadData(true);
     } catch (error) {
-      console.warn("updateOfferStatus Api Error", error.response);
+      console.warn("updateMarketStatus Api Error", error.response);
       if (error.response?.message) {
         setToastMsg(error.response?.message);
       } else {

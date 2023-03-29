@@ -153,20 +153,17 @@ export function MarketDetail() {
   );
 
   const tagsContentMarkup =
-    tagOptionsSelected.length > 0 && vendorsList?.length ? (
+    tagOptionsSelected?.length > 0 &&
+    vendorsList?.length &&
+    tagOptions?.length ? (
       <div className="Product-Tags-Stack">
         <Stack spacing="extraTight" alignment="center">
           {tagOptionsSelected.map((option) => {
-            console.log("vendorsList?.length", vendorsList?.length);
-            console.log("option", option);
             let tagLabel = "";
             let title = vendorsList?.find((obj) => obj.id == option);
             if (title) {
               tagLabel = title.name;
             }
-            console.log("vendorsList test", vendorsList);
-            console.log("title", title);
-            console.log("tagLabel", tagLabel);
             tagLabel = tagLabel.replace("_", " ");
             tagLabel = tagTitleCase(tagLabel);
             return (
@@ -259,7 +256,7 @@ export function MarketDetail() {
 
   useEffect(() => {
     setCountriesList(groupCountries(allCountriesList));
-    // console.log("checkedCountries", checkedCountries);
+    console.log("checkedCountries", checkedCountries);
 
     let country = [];
     let state = [];
@@ -273,6 +270,7 @@ export function MarketDetail() {
         let list = checkedCountries?.find((d) => d == `s_${item2.id}`);
         if (list) {
           state.push(item2.id);
+          country.push(Number(item2.country_id));
         }
         item2.cities?.map((item3) => {
           let list = checkedCountries?.find((d) => d == `c_${item3.id}`);
@@ -308,19 +306,11 @@ export function MarketDetail() {
             });
           }
 
-          if (cities?.length) {
-            states.push({
-              value: `s_${item2.id}`,
-              label: item2.name,
-              children: cities,
-            });
-          } else {
-            states.push({
-              value: `s_${item2.id}`,
-              label: item2.name,
-              children: cities,
-            });
-          }
+          states.push({
+            value: `s_${item2.id}`,
+            label: item2.name,
+            children: cities,
+          });
         });
       }
 
@@ -330,7 +320,7 @@ export function MarketDetail() {
         children: states,
       });
     });
-
+    console.log("arr", arr);
     return arr;
   }
 
@@ -409,9 +399,8 @@ export function MarketDetail() {
   }, []);
 
   useEffect(() => {
-    console.log("vendorsList", vendorsList);
-    console.log("tagOptions", tagOptions);
-  }, [vendorsList]);
+    console.log("checkedVariants", checkedVariants);
+  }, [checkedVariants]);
 
   const editMarket = async (id) => {
     setLoading(true);
@@ -453,24 +442,11 @@ export function MarketDetail() {
 
         setCheckedCountries(list);
 
-        // if (marketResponse?.vendors?.length) {
-        //   if (!vendorsList?.length) {
-        //     setVendorsList(marketResponse?.vendors);
-        //     let list = [];
-        //     marketResponse?.vendors?.map((item) => {
-        //       list.push({
-        //         value: item.id,
-        //         label: item.name,
-        //       });
-        //     });
-        //     setTagOptions(list);
-        //   }
-        // }
         let vendors = [];
         marketResponse?.vendors?.map((vendor) => {
           vendors.push(vendor.id);
         });
-        // setTagOptionsSelected(vendors);
+        setTagOptionsSelected(vendors);
 
         setExpandedCountry();
         setLoading(false);

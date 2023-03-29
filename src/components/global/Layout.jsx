@@ -12,7 +12,7 @@ import {
 import { AppContext } from "../providers/ContextProvider";
 import { useAuthDispatch, useAuthState } from "../providers/AuthProvider";
 import barLogo from "../../assets/barLogo.png";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   setAccessToken,
   getAccessToken,
@@ -147,6 +147,10 @@ export function SuperAdminLayout({ children }) {
             label: "Markets",
             icon: MarketsMajor,
             url: "/markets",
+            selected:
+              location.pathname === "/markets" ||
+              location.pathname ===
+                `/market/${location.pathname.split("/market/")[1]}`,
             onClick: () => setLocationChange("/markets"),
           },
           {

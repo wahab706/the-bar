@@ -117,6 +117,7 @@ export function Users() {
     setUserModal(!userModal);
     setIsEditUser(false);
     setUserId();
+    setHidePassword(true);
     setNewUser({
       firstName: "",
       lastName: "",
@@ -187,7 +188,7 @@ export function Users() {
   };
 
   const rowMarkup = users?.map(
-    ({ id, first_name, last_name, phone, email, role_id }, index) => (
+    ({ id, first_name, last_name, phone, email, status, roles }, index) => (
       <IndexTable.Row
         id={id}
         key={index}
@@ -199,9 +200,26 @@ export function Users() {
             {first_name} {last_name}
           </Text>
         </IndexTable.Cell>
-        <IndexTable.Cell>{"---"}</IndexTable.Cell>
+        <IndexTable.Cell className="Capitalize-Cell">
+          {roles?.length ? roles[0].name?.replace("_", " ") : "---"}
+        </IndexTable.Cell>
         <IndexTable.Cell>{phone ? phone : "---"}</IndexTable.Cell>
         <IndexTable.Cell>{email ? email : "---"}</IndexTable.Cell>
+        <IndexTable.Cell>
+          <span
+            className="small-tgl-btn"
+            onClick={() => updateUserStatus(id, status)}
+          >
+            <input
+              id={id}
+              type="checkbox"
+              className="tgl tgl-light"
+              onChange={() => ""}
+              checked={convertNumberToBoolean(status)}
+            />
+            <label htmlFor={id} className="tgl-btn"></label>
+          </span>
+        </IndexTable.Cell>
 
         <IndexTable.Cell className="Polaris-IndexTable-Delete-Column">
           <ButtonGroup>
@@ -268,7 +286,7 @@ export function Users() {
         }
       );
 
-      console.log("getUsers response: ", response.data?.users);
+      // console.log("getUsers response: ", response.data?.users);
       if (!response?.data?.success) {
         setToastMsg(response?.data?.message);
         setErrorToast(true);
@@ -421,6 +439,45 @@ export function Users() {
     setUserId(id);
     setUsersLoading(true);
     editUser(id);
+  };
+
+  const updateUserStatus = async (id, value) => {
+    let enableValue = "";
+    if (value == 0) {
+      enableValue = 1;
+    } else {
+      enableValue = 0;
+    }
+
+    let data = {
+      toggle: enableValue,
+    };
+
+    try {
+      const response = await axios.post(
+        `${apiUrl}/api/user/status/${id}`,
+        data,
+        {
+          headers: { Authorization: `Bearer ${getAccessToken()}` },
+        }
+      );
+      if (response?.data?.success) {
+        setToastMsg(response?.data?.message);
+        setSucessToast(true);
+      } else {
+        setToastMsg(response?.data?.message);
+        setErrorToast(true);
+      }
+      setToggleLoadData(true);
+    } catch (error) {
+      console.warn("updateUserStatus Api Error", error.response);
+      if (error.response?.message) {
+        setToastMsg(error.response?.message);
+      } else {
+        setToastMsg("Something Went Wrong, Try Again!");
+      }
+      setErrorToast(true);
+    }
   };
 
   const editUser = async (id) => {
@@ -772,6 +829,7 @@ export function Users() {
                       { title: "Role" },
                       { title: "Phone" },
                       { title: "Email" },
+                      { title: "Active/Draft" },
                       { title: "" },
                     ]}
                   >
