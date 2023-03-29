@@ -82,8 +82,7 @@ export function ChangePassword() {
         });
 
         let data = {
-          //   email: userInfo?.email,
-          email: "super@tlx.com",
+          email: userInfo?.email,
           password: password.new,
           confirm_password: password.confirm,
         };
@@ -94,7 +93,7 @@ export function ChangePassword() {
             data,
             {
               headers: {
-                Authorization: `Bearer ${getAccessToken()}`,
+                Authorization: `Bearer ${userInfo.token}`,
               },
             }
           );
@@ -114,15 +113,6 @@ export function ChangePassword() {
         } catch (error) {
           console.warn("updatePassword Api Error", error.response);
           setBtnLoading(false);
-          //   if (
-          //     error.response?.data?.errors &&
-          //     error.response?.data?.message?.message
-          //   ) {
-          //     setToastMsg(error.response?.data?.message?.message);
-          //   } else {
-          //     setToastMsg("Server Error");
-          //   }
-          //   setErrorToast(true);
           setToastMsg("Something Went Wrong, Try Again!");
           setErrorToast(true);
         }

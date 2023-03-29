@@ -450,7 +450,7 @@ export function Users() {
     }
 
     let data = {
-      toggle: enableValue,
+      status: enableValue,
     };
 
     try {

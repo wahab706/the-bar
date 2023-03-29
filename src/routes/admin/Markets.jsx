@@ -291,7 +291,7 @@ export function Markets() {
         }
       );
 
-      console.log("getMarkets response: ", response.data);
+      // console.log("getMarkets response: ", response.data);
       if (!response?.data?.success) {
         setToastMsg(response?.data?.message);
         setErrorToast(true);
@@ -415,7 +415,7 @@ export function Markets() {
           headers: { Authorization: `Bearer ${getAccessToken()}` },
         }
       );
-      console.log("response", response?.data);
+      // console.log("response", response?.data);
       if (!response?.data?.success) {
         setToastMsg(response?.data?.message);
         setErrorToast(true);

@@ -117,7 +117,7 @@ function AuthProvider(props) {
       if (location.pathname == "/reset-password") {
         navigate("/reset-password");
       } else if (location.pathname == "/change-password") {
-        navigate("/change-password");
+        navigate(`/change-password${location.search}`);
       } else {
         navigate("/login");
       }

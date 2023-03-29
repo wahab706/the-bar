@@ -77,17 +77,26 @@ export function ResetPassword() {
       console.log("forgot password response: ", response.data);
 
       setBtnLoading(false);
-      if (!response.data?.success) {
-        setToastMsg(response?.data?.message);
-        setErrorToast(true);
-        setBtnDisabled(false);
-      } else {
-        setToastMsg(response?.data?.message);
+      if (
+        response.data?.status == "We have emailed your password reset link!"
+      ) {
+        setToastMsg("We have emailed your password reset link!");
         setSucessToast(true);
         setTime(60);
         setTimeout(() => {
           setBtnDisabled(false);
         }, 60000);
+      } else if (response.data?.status == "Please wait before retrying.") {
+        setToastMsg("Please wait before retrying.");
+        setErrorToast(true);
+        setTime(60);
+        setTimeout(() => {
+          setBtnDisabled(false);
+        }, 60000);
+      } else {
+        setToastMsg(response.data?.status);
+        setErrorToast(true);
+        setBtnDisabled(false);
       }
     } catch (error) {
       console.warn("forgot password Api Error", error);

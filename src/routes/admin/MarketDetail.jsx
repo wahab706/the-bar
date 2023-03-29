@@ -254,9 +254,13 @@ export function MarketDetail() {
     cities: [],
   });
 
+  const handleCheckedCountries = (checked) => {
+    setCheckedCountries(checked);
+  };
+
   useEffect(() => {
     setCountriesList(groupCountries(allCountriesList));
-    console.log("checkedCountries", checkedCountries);
+    // console.log("checkedCountries", checkedCountries);
 
     let country = [];
     let state = [];
@@ -320,9 +324,13 @@ export function MarketDetail() {
         children: states,
       });
     });
-    console.log("arr", arr);
+
     return arr;
   }
+
+  // useEffect(() => {
+  //   console.log("checkedVariants", checkedVariants);
+  // }, [checkedVariants]);
 
   // =================Countries Modal Code Ends Here================
   const getCounriesList = async () => {
@@ -398,10 +406,6 @@ export function MarketDetail() {
     getVendorsList();
   }, []);
 
-  useEffect(() => {
-    console.log("checkedVariants", checkedVariants);
-  }, [checkedVariants]);
-
   const editMarket = async (id) => {
     setLoading(true);
     try {
@@ -439,7 +443,7 @@ export function MarketDetail() {
         marketResponse?.countries?.map((item) => {
           list.push(`${item.id}`);
         });
-
+        // console.log("get_list", list);
         setCheckedCountries(list);
 
         let vendors = [];
@@ -702,7 +706,7 @@ export function MarketDetail() {
                     nodes={countriesList}
                     checked={checkedCountries}
                     expanded={expandedCountry}
-                    onCheck={(checked) => setCheckedCountries(checked)}
+                    onCheck={(checked) => handleCheckedCountries(checked)}
                     onExpand={(expanded) => setExpandedCountry(expanded)}
                     icons={{
                       check: <img src={FillCheckBox} alt="checkbox" />,
