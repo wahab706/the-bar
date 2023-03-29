@@ -28,6 +28,7 @@ import {
   Vendors,
   MarketDetail,
   Finances,
+  Users,
 } from "./routes/admin/index";
 import NotFound from "./routes/NotFound";
 import { SuperAdminLayout, AdminLayout, VendorLayout } from "./components";
@@ -49,6 +50,7 @@ function Routes1() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/products" element={<Products />} />
               <Route path="/orders" element={<Orders />} />
+              <Route path="/users" element={<Users />} />
               <Route path="/markets" element={<Markets />} />
               <Route path={`/market/:marketId`} element={<MarketDetail />} />
               <Route path="/profile" element={<Profile />} />

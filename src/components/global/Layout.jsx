@@ -138,6 +138,12 @@ export function SuperAdminLayout({ children }) {
             onClick: () => setLocationChange("/vendors"),
           },
           {
+            label: "Users",
+            icon: CustomersMinor,
+            url: "/users",
+            onClick: () => setLocationChange("/users"),
+          },
+          {
             label: "Markets",
             icon: MarketsMajor,
             url: "/markets",
@@ -165,112 +171,6 @@ export function SuperAdminLayout({ children }) {
       />
     </Navigation>
   );
-
-  const NavigationMarkupAdmin = (
-    <Navigation location={locationChange}>
-      <Navigation.Section
-        items={[
-          {
-            label: "Dashboard",
-            icon: HomeMinor,
-            url: "/dashboard",
-            onClick: () => setLocationChange("/dashboard"),
-            selected: location.pathname === "/dashboard",
-          },
-          {
-            label: "Orders",
-            icon: OrdersMinor,
-            url: "/orders",
-            onClick: () => setLocationChange("/orders"),
-          },
-          {
-            label: "Products",
-            icon: ProductsMinor,
-            url: "/products",
-            onClick: () => setLocationChange("/products"),
-          },
-          {
-            label: "Customers",
-            icon: CustomersMinor,
-            url: "/customers",
-            onClick: () => setLocationChange("/customers"),
-          },
-          {
-            label: "Vendors",
-            icon: CustomersMinor,
-            url: "/vendors",
-            onClick: () => setLocationChange("/vendors"),
-          },
-          {
-            label: "Markets",
-            icon: MarketsMajor,
-            url: "/markets",
-            onClick: () => setLocationChange("/markets"),
-          },
-          {
-            label: "Account",
-            icon: account,
-            url: "/profile",
-            onClick: () => setLocationChange("/profile"),
-          },
-          {
-            label: "Settings",
-            icon: SettingsMinor,
-            url: "/settings",
-            onClick: () => setLocationChange("/settings"),
-          },
-        ]}
-      />
-    </Navigation>
-  );
-
-  const NavigationMarkupVendor = (
-    <Navigation location={locationChange}>
-      <Navigation.Section
-        items={[
-          {
-            label: "Dashboard",
-            icon: HomeMinor,
-            url: "/dashboard",
-            onClick: () => setLocationChange("/dashboard"),
-            selected: location.pathname === "/dashboard",
-          },
-          {
-            label: "Orders",
-            icon: OrdersMinor,
-            url: "/orders",
-            onClick: () => setLocationChange("/orders"),
-          },
-          {
-            label: "Products",
-            icon: ProductsMinor,
-            url: "/products",
-            onClick: () => setLocationChange("/products"),
-          },
-          {
-            label: "Account",
-            icon: account,
-            url: "/profile",
-            onClick: () => setLocationChange("/profile"),
-          },
-          {
-            label: "Settings",
-            icon: SettingsMinor,
-            url: "/settings",
-            onClick: () => setLocationChange("/settings"),
-          },
-        ]}
-      />
-    </Navigation>
-  );
-
-  // user?.userRole == "super_admin"
-  //   ? NavigationMarkupSuperAdmin
-  //   : user?.userRole == "admin"
-  //   ? NavigationMarkupAdmin
-  //   : user?.userRole == "vendor"
-  //   ? NavigationMarkupVendor
-  //   : "";
 
   const toggleMobileNavigationActive = useCallback(
     () =>

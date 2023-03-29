@@ -7,21 +7,15 @@ import React, {
 } from "react";
 import {
   Page,
-  Layout,
   Card,
   Scrollable,
-  Avatar,
   Stack,
-  ButtonGroup,
   Button,
   PageActions,
   Form,
   FormLayout,
   Banner,
   Icon,
-  Listbox,
-  EmptySearchResult,
-  AutoSelection,
   Toast,
   Loading,
   List,
@@ -76,9 +70,6 @@ export function MarketDetail() {
     slug: "",
     description: "",
     status: true,
-    country: [],
-    state: [],
-    city: [],
   });
 
   const handleNewMarketDetails = (e) => {
@@ -162,15 +153,20 @@ export function MarketDetail() {
   );
 
   const tagsContentMarkup =
-    tagOptionsSelected.length > 0 ? (
+    tagOptionsSelected.length > 0 && vendorsList?.length ? (
       <div className="Product-Tags-Stack">
         <Stack spacing="extraTight" alignment="center">
           {tagOptionsSelected.map((option) => {
+            console.log("vendorsList?.length", vendorsList?.length);
+            console.log("option", option);
             let tagLabel = "";
             let title = vendorsList?.find((obj) => obj.id == option);
             if (title) {
               tagLabel = title.name;
             }
+            console.log("vendorsList test", vendorsList);
+            console.log("title", title);
+            console.log("tagLabel", tagLabel);
             tagLabel = tagLabel.replace("_", " ");
             tagLabel = tagTitleCase(tagLabel);
             return (
@@ -412,6 +408,11 @@ export function MarketDetail() {
     getVendorsList();
   }, []);
 
+  useEffect(() => {
+    console.log("vendorsList", vendorsList);
+    console.log("tagOptions", tagOptions);
+  }, [vendorsList]);
+
   const editMarket = async (id) => {
     setLoading(true);
     try {
@@ -451,6 +452,25 @@ export function MarketDetail() {
         });
 
         setCheckedCountries(list);
+
+        // if (marketResponse?.vendors?.length) {
+        //   if (!vendorsList?.length) {
+        //     setVendorsList(marketResponse?.vendors);
+        //     let list = [];
+        //     marketResponse?.vendors?.map((item) => {
+        //       list.push({
+        //         value: item.id,
+        //         label: item.name,
+        //       });
+        //     });
+        //     setTagOptions(list);
+        //   }
+        // }
+        let vendors = [];
+        marketResponse?.vendors?.map((vendor) => {
+          vendors.push(vendor.id);
+        });
+        // setTagOptionsSelected(vendors);
 
         setExpandedCountry();
         setLoading(false);

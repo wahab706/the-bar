@@ -3,7 +3,6 @@ import {
   Page,
   Card,
   Tabs,
-  Link,
   TextField,
   IndexTable,
   Loading,
@@ -12,7 +11,6 @@ import {
   Form,
   FormLayout,
   Scrollable,
-  Pagination,
   Modal,
   EmptySearchResult,
   Toast,
@@ -27,44 +25,9 @@ import {
   SkeltonPageForTable,
   getAccessToken,
   InputField,
-  PaymentLoader,
 } from "../../components";
 import axios from "axios";
-import dateFormat from "dateformat";
 import { useNavigate } from "react-router-dom";
-
-const marketsData = [
-  {
-    id: "1",
-    name: "All",
-    status: true,
-    countries: "all",
-  },
-  {
-    id: "2",
-    name: "Asia",
-    status: true,
-    countries: "42",
-  },
-  {
-    id: "3",
-    name: "Europe",
-    status: false,
-    countries: "55",
-  },
-  {
-    id: "4",
-    name: "All",
-    status: false,
-    countries: "27",
-  },
-  {
-    id: "5",
-    name: "Africa",
-    status: true,
-    countries: "10",
-  },
-];
 
 export function Markets() {
   const { apiUrl } = useContext(AppContext);
