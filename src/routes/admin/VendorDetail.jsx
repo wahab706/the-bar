@@ -35,6 +35,8 @@ import {
   SkeltonPageForProductDetail,
   getAccessToken,
   InputField,
+  ShowPassword,
+  HidePassword,
   CheckBox,
   CustomBadge,
 } from "../../components";
@@ -47,7 +49,7 @@ import EmptyCheckBox from "../../assets/icons/EmptyCheckBox.png";
 import FillCheckBox from "../../assets/icons/FillCheckBox.png";
 import CheckboxTree from "react-checkbox-tree";
 
-export function MarketDetail() {
+export function VendorDetail() {
   const params = useParams();
   const { apiUrl } = useContext(AppContext);
   const { user } = useAuthState();
@@ -58,34 +60,40 @@ export function MarketDetail() {
   const [errorToast, setErrorToast] = useState(false);
   const [sucessToast, setSucessToast] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
-  const [marketName, setMarketName] = useState("");
-  const [marketStatus, setMarketStatus] = useState("");
-  const [marketId, setMarketId] = useState("");
+  const [vendorName, setVendorName] = useState("");
+  const [vendorStatus, setVendorStatus] = useState("");
+  const [vendorId, setVendorId] = useState("");
   const [discardModal, setDiscardModal] = useState(false);
   const [vendorsList, setVendorsList] = useState([]);
-  const [marketError, setMarketError] = useState();
+  const [vendorError, setVendorError] = useState();
 
-  const [newMarket, setNewMarket] = useState({
-    name: "",
-    slug: "",
-    description: "",
+  const [passwordErrorMsg, setPasswordErrorMsg] = useState("");
+  const [hidePassword, setHidePassword] = useState(true);
+  const [newVendor, setNewVendor] = useState({
+    first_name: "",
+    last_name: "",
+    email: "",
+    phone: "",
+    password: "",
+    cPassword: "",
     status: true,
+    address_line1: "",
+    address_line2: "",
+    state: "",
+    city: "",
+    zipCode: "",
   });
 
-  const handleNewMarketDetails = (e) => {
+  const handleNewVendorDetails = (e) => {
     if (e.target.name == "status") {
-      setNewMarket({ ...newMarket, [e.target.name]: e.target.checked });
+      setNewVendor({ ...newVendor, [e.target.name]: e.target.checked });
     } else {
-      setNewMarket({ ...newMarket, [e.target.name]: e.target.value });
+      setNewVendor({ ...newVendor, [e.target.name]: e.target.value });
+    }
+    if (e.target.name == "password" || e.target.name == "cPassword") {
+      setPasswordErrorMsg("");
     }
   };
-
-  useEffect(() => {
-    setNewMarket({
-      ...newMarket,
-      slug: newMarket.name?.replace(/\s+/g, "-").toLowerCase(),
-    });
-  }, [newMarket.name]);
 
   // -------------------Tags------------------------
 
@@ -235,132 +243,12 @@ export function MarketDetail() {
     return booleanValue;
   }
 
-  const discardMarket = () => {
-    navigate("/markets");
+  const discardVendor = () => {
+    navigate("/vendors");
   };
 
   const handleDiscardModal = () => {
     setDiscardModal(!discardModal);
-  };
-
-  // =================Countries Modal Code Start Here================
-  const [expandedCountry, setExpandedCountry] = useState([]);
-  const [countriesList, setCountriesList] = useState([]);
-  const [allCountriesList, setAllCountriesList] = useState([]);
-  const [checkedCountries, setCheckedCountries] = useState([]);
-  const [checkedVariants, setCheckedVariants] = useState({
-    countries: [],
-    states: [],
-    cities: [],
-  });
-
-  const handleCheckedCountries = (checked) => {
-    setCheckedCountries(checked);
-  };
-
-  useEffect(() => {
-    setCountriesList(groupCountries(allCountriesList));
-    // console.log("checkedCountries", checkedCountries);
-
-    let country = [];
-    let state = [];
-    let city = [];
-    allCountriesList.map((item) => {
-      let list = checkedCountries?.find((d) => d == item.id);
-      if (list) {
-        country.push(item.id);
-      }
-      item.states?.map((item2) => {
-        let list = checkedCountries?.find((d) => d == `s_${item2.id}`);
-        if (list) {
-          state.push(item2.id);
-          country.push(Number(item2.country_id));
-        }
-        item2.cities?.map((item3) => {
-          let list = checkedCountries?.find((d) => d == `c_${item3.id}`);
-          if (list) {
-            city.push(item3.id);
-            state.push(Number(item3.state_id));
-            country.push(Number(item3.country_id));
-          }
-        });
-      });
-    });
-
-    setCheckedVariants({
-      countries: [...new Set(country)],
-      states: [...new Set(state)],
-      cities: [...new Set(city)],
-    });
-  }, [allCountriesList, checkedCountries]);
-
-  function groupCountries(data) {
-    let arr = [];
-    data?.map((item) => {
-      let states = [];
-      if (item.states?.length > 0) {
-        item.states?.map((item2) => {
-          let cities = [];
-          if (item2.cities?.length > 0) {
-            item2.cities?.map((item3) => {
-              cities.push({
-                value: `c_${item3.id}`,
-                label: item3.name,
-              });
-            });
-          }
-
-          states.push({
-            value: `s_${item2.id}`,
-            label: item2.name,
-            children: cities,
-          });
-        });
-      }
-
-      arr.push({
-        value: item.id,
-        label: item.name,
-        children: states,
-      });
-    });
-
-    return arr;
-  }
-
-  // useEffect(() => {
-  //   console.log("checkedVariants", checkedVariants);
-  // }, [checkedVariants]);
-
-  // =================Countries Modal Code Ends Here================
-  const getCounriesList = async () => {
-    try {
-      const response = await axios.post(
-        `${apiUrl}/api/country`,
-        {},
-        {
-          headers: { Authorization: `Bearer ${getAccessToken()}` },
-        }
-      );
-
-      // console.log("getCounriesList response: ", response.data?.countries);
-      if (!response?.data?.success) {
-        setToastMsg(response?.data?.message);
-        setErrorToast(true);
-      } else {
-        setAllCountriesList(response.data?.countries);
-        setCountriesList(groupCountries(response.data?.countries));
-      }
-    } catch (error) {
-      console.warn("Get CounriesList Api Error", error.response);
-      setBtnLoading(false);
-      if (error.response?.message) {
-        setToastMsg(error.response?.message);
-      } else {
-        setToastMsg("Something Went Wrong, Try Again!");
-      }
-      setErrorToast(true);
-    }
   };
 
   const getVendorsList = async () => {
@@ -402,57 +290,43 @@ export function MarketDetail() {
   };
 
   useEffect(() => {
-    getCounriesList();
     getVendorsList();
   }, []);
 
-  const editMarket = async (id) => {
+  const editVendor = async (id) => {
     setLoading(true);
     try {
       const response = await axios.post(
-        `${apiUrl}/api/market/${id}`,
+        `${apiUrl}/api/vendor/detail/${id}`,
         {},
         {
           headers: { Authorization: `Bearer ${getAccessToken()}` },
         }
       );
 
-      // console.log("editMarket response: ", response.data);
+      console.log("editVendor response: ", response.data);
       if (!response?.data?.success) {
         setToastMsg(response?.data?.message);
         setErrorToast(true);
       } else {
-        let marketResponse = response.data?.market_detail;
-        setMarketId(marketResponse?.id);
-        setMarketName(marketResponse?.name);
-        setMarketStatus(marketResponse?.status);
-        setNewMarket({
-          ...newMarket,
-          name: marketResponse?.name,
-          description: marketResponse?.description,
-          slug: marketResponse?.slug,
-          status: convertNumberToBoolean(marketResponse?.status),
+        let vendorResponse = response.data?.vendor;
+        setVendorId(vendorResponse?.id);
+        setVendorName(vendorResponse?.name);
+        setVendorStatus(vendorResponse?.status);
+        setNewVendor({
+          ...newVendor,
+          first_name: vendorResponse?.first_name,
+          last_name: vendorResponse?.last_name,
+          email: vendorResponse?.email,
+          phone: vendorResponse?.phone,
+          city: vendorResponse?.details?.city,
+          zipCode: vendorResponse?.details?.zipCode,
+          state: vendorResponse?.details?.state,
+          address_line1: vendorResponse?.details?.address_line1,
+          address_line2: vendorResponse?.details?.address_line2,
+          status: convertNumberToBoolean(vendorResponse?.status),
         });
-        let list = [];
-        marketResponse?.cities?.map((item) => {
-          list.push(`c_${item.id}`);
-        });
-        marketResponse?.states?.map((item) => {
-          list.push(`s_${item.id}`);
-        });
-        marketResponse?.countries?.map((item) => {
-          list.push(`${item.id}`);
-        });
-        // console.log("get_list", list);
-        setCheckedCountries(list);
 
-        let vendors = [];
-        marketResponse?.vendors?.map((vendor) => {
-          vendors.push(vendor.id);
-        });
-        setTagOptionsSelected(vendors);
-
-        setExpandedCountry();
         setLoading(false);
         setToggleLoadData(false);
         window.scrollTo(0, 0);
@@ -460,7 +334,7 @@ export function MarketDetail() {
 
       setBtnLoading(false);
     } catch (error) {
-      console.warn("editMarket Api Error", error.response);
+      console.warn("editVendor Api Error", error.response);
       setBtnLoading(false);
       if (error.response?.message) {
         setToastMsg(error.response?.message);
@@ -473,62 +347,57 @@ export function MarketDetail() {
 
   useEffect(() => {
     if (toggleLoadData) {
-      editMarket(params.marketId);
+      editVendor(params.vendorId);
     }
   }, [toggleLoadData]);
 
-  const handleUpdateMarket = () => {
-    document.getElementById("updateMarketForm").click();
+  const handleUpdateVendor = () => {
+    document.getElementById("updateVendorForm").click();
   };
 
-  const handleUpdateMarketSubmit = (e) => {
+  const handleUpdateVendorSubmit = (e) => {
     e.preventDefault();
-    if (checkedVariants.countries?.length && tagOptionsSelected?.length) {
-      setMarketError();
-      updateMarket();
-    } else {
-      if (!checkedVariants.countries?.length) {
-        setMarketError("Country");
-        window.scrollTo(0, 0);
-      } else if (!tagOptionsSelected?.length) {
-        setMarketError("Vendor");
-        window.scrollTo(0, 0);
-      }
-    }
+    updateVendor();
+    // if (tagOptionsSelected?.length) {
+    //   setVendorError();
+    //   updateVendor();
+    // } else {
+    //   if (!tagOptionsSelected?.length) {
+    //     setVendorError("Vendor");
+    //     window.scrollTo(0, 0);
+    //   }
+    // }
   };
 
-  const updateMarket = async () => {
+  const updateVendor = async () => {
     setBtnLoading((prev) => {
       let toggleId;
-      if (prev["updateMarket"]) {
-        toggleId = { ["updateMarket"]: false };
+      if (prev["updateVendor"]) {
+        toggleId = { ["updateVendor"]: false };
       } else {
-        toggleId = { ["updateMarket"]: true };
+        toggleId = { ["updateVendor"]: true };
       }
       return { ...toggleId };
     });
 
     let data = {
-      name: newMarket.name,
-      description: newMarket.description,
-      slug: newMarket.slug,
-      toggle: convertBooleanToNumber(newMarket.status),
+      name: newVendor.name,
+      description: newVendor.description,
+      slug: newVendor.slug,
+      toggle: convertBooleanToNumber(newVendor.status),
       vendor_id: tagOptionsSelected,
-      country_id: checkedVariants.countries,
-      state_id: checkedVariants.states,
-      city_id: checkedVariants.cities,
     };
 
     try {
       const response = await axios.post(
-        `${apiUrl}/api/update/market/${marketId}`,
+        `${apiUrl}/api/update/market/${vendorId}`,
         data,
         {
           headers: { Authorization: `Bearer ${getAccessToken()}` },
         }
       );
 
-      // console.log("updateMarket response: ", response.data);
+      // console.log("updateVendor response: ", response.data);
       if (!response?.data?.success) {
         setToastMsg(response?.data?.message);
         setErrorToast(true);
@@ -540,7 +409,7 @@ export function MarketDetail() {
 
       setBtnLoading(false);
     } catch (error) {
-      console.warn("updateMarket Api Error", error.response);
+      console.warn("updateVendor Api Error", error.response);
       setBtnLoading(false);
       if (error.response?.message) {
         setToastMsg(error.response?.message);
@@ -552,7 +421,7 @@ export function MarketDetail() {
   };
 
   return (
-    <div className=" Market-Detail-Page">
+    <div className="Vendor-Detail-Page">
       <Modal
         open={discardModal}
         onClose={handleDiscardModal}
@@ -560,7 +429,7 @@ export function MarketDetail() {
         primaryAction={{
           content: "Leave page",
           destructive: true,
-          onAction: discardMarket,
+          onAction: discardVendor,
         }}
         secondaryActions={[
           {
@@ -609,31 +478,29 @@ export function MarketDetail() {
         </span>
       ) : (
         <Page
-          breadcrumbs={[{ content: "Markets", onAction: handleDiscardModal }]}
-          title={marketName}
+          breadcrumbs={[{ content: "Vendor", onAction: handleDiscardModal }]}
+          title={vendorName}
           titleMetadata={
-            marketStatus == 0 ? (
+            vendorStatus == 0 ? (
               <Badge status="info">Draft</Badge>
-            ) : marketStatus == 1 ? (
+            ) : vendorStatus == 1 ? (
               <Badge status="success">Active</Badge>
-            ) : marketStatus == 2 ? (
-              <Badge status="critical">Archived</Badge>
             ) : null
           }
           primaryAction={{
-            content: "Save Market",
-            onAction: handleUpdateMarket,
-            loading: btnLoading["updateMarket"],
+            content: "Save Vendor",
+            onAction: handleUpdateVendor,
+            loading: btnLoading["updateVendor"],
           }}
         >
-          {marketError ? (
+          {vendorError ? (
             <>
               <Banner
                 title="There is 1 error with this Market:"
                 status="critical"
               >
                 <List>
-                  <List.Item>Specific {marketError} must be added</List.Item>
+                  <List.Item>Specific {vendorError} must be added</List.Item>
                 </List>
               </Banner>
               <br />
@@ -642,9 +509,9 @@ export function MarketDetail() {
             ""
           )}
 
-          <Form onSubmit={handleUpdateMarketSubmit}>
+          <Form onSubmit={handleUpdateVendorSubmit}>
             <span className="VisuallyHidden">
-              <Button submit id="updateMarketForm">
+              <Button submit id="updateVendorForm">
                 Submit
               </Button>
             </span>
@@ -654,120 +521,204 @@ export function MarketDetail() {
                 <FormLayout.Group>
                   <InputField
                     type="text"
-                    label="Name"
-                    name="name"
-                    value={newMarket.name}
-                    onChange={handleNewMarketDetails}
+                    label="First Name"
+                    name="first_name"
+                    value={newVendor.first_name}
+                    onChange={handleNewVendorDetails}
                     autoComplete="off"
                     required
-                    placeholder="Enter Name"
+                    placeholder="Enter First Name"
                   />
                   <InputField
                     type="text"
-                    label="Slug"
-                    name="slug"
-                    value={newMarket.slug}
-                    onChange={handleNewMarketDetails}
+                    label="Last Name"
+                    name="last_name"
+                    value={newVendor.last_name}
+                    onChange={handleNewVendorDetails}
                     autoComplete="off"
                     required
-                    placeholder="Slug"
+                    placeholder="Enter Last Name"
                   />
                 </FormLayout.Group>
 
                 <InputField
-                  marginTop
-                  type="text"
-                  label="Description (optional)"
-                  name="description"
-                  value={newMarket.description}
-                  onChange={handleNewMarketDetails}
+                  type="email"
+                  label="Email"
+                  name="email"
+                  required
+                  value={newVendor.email}
+                  onChange={handleNewVendorDetails}
                   autoComplete="off"
-                  multiline="4"
-                  placeholder="Enter Description"
+                  placeholder="Enter Email"
                 />
-                <br />
+
+                <InputField
+                  type="number"
+                  label="Phone"
+                  name="phone"
+                  required
+                  value={newVendor.phone}
+                  onChange={handleNewVendorDetails}
+                  autoComplete="off"
+                  placeholder="Enter Phone"
+                />
+                <InputField
+                  type="text"
+                  label="City"
+                  name="city"
+                  value={newVendor.city}
+                  onChange={handleNewVendorDetails}
+                  autoComplete="off"
+                  required
+                  placeholder="Enter City"
+                />
+                <FormLayout.Group>
+                  <InputField
+                    type="text"
+                    label="State"
+                    name="state"
+                    value={newVendor.state}
+                    onChange={handleNewVendorDetails}
+                    autoComplete="off"
+                    required
+                    placeholder="Enter State"
+                  />
+                  <InputField
+                    type="text"
+                    label="Zip Code"
+                    name="zipCode"
+                    value={newVendor.zipCode}
+                    onChange={handleNewVendorDetails}
+                    autoComplete="off"
+                    required
+                    placeholder="Enter Zip Code"
+                  />
+                </FormLayout.Group>
+
+                <InputField
+                  type="text"
+                  label="Address 1"
+                  name="address_line1"
+                  multiline={"3"}
+                  value={newVendor.address_line1}
+                  onChange={handleNewVendorDetails}
+                  autoComplete="off"
+                  placeholder="Enter Address"
+                />
+
+                <InputField
+                  type="text"
+                  label="Address 2 (optional)"
+                  name="address_line2"
+                  multiline={"3"}
+                  value={newVendor.address_line2}
+                  onChange={handleNewVendorDetails}
+                  autoComplete="off"
+                  placeholder="Enter Address"
+                />
+
+                <FormLayout.Group>
+                  <div className="Icon-TextFiled">
+                    <InputField
+                      value={newVendor.password}
+                      name="password"
+                      onChange={handleNewVendorDetails}
+                      label="Password"
+                      type={hidePassword ? "password" : "text"}
+                      autoComplete="off"
+                      placeholder="Enter Password"
+                      required
+                      error={passwordErrorMsg}
+                    />
+                    <span
+                      onClick={() => setHidePassword(!hidePassword)}
+                      className="Icon-Section"
+                    >
+                      {hidePassword ? (
+                        <Icon source={HidePassword} color="subdued" />
+                      ) : (
+                        <Icon source={ShowPassword} color="subdued" />
+                      )}
+                    </span>
+                  </div>
+
+                  <div className="Icon-TextFiled">
+                    <InputField
+                      value={newVendor.cPassword}
+                      name="cPassword"
+                      onChange={handleNewVendorDetails}
+                      label="Confirm Password"
+                      type={hidePassword ? "password" : "text"}
+                      autoComplete="off"
+                      placeholder="Enter Password"
+                      required
+                      error={passwordErrorMsg}
+                    />
+                    <span
+                      onClick={() => setHidePassword(!hidePassword)}
+                      className="Icon-Section"
+                    >
+                      {hidePassword ? (
+                        <Icon source={HidePassword} color="subdued" />
+                      ) : (
+                        <Icon source={ShowPassword} color="subdued" />
+                      )}
+                    </span>
+                  </div>
+                </FormLayout.Group>
+
                 <span className="Modal-Select">
-                  <label htmlFor="marketStatus">Status</label>
+                  <label htmlFor="vendorStatus">Status</label>
                   <input
-                    id="marketStatus"
+                    id="vendorStatus"
                     type="checkbox"
                     name="status"
                     className="tgl tgl-light"
-                    checked={newMarket.status}
-                    onChange={handleNewMarketDetails}
+                    checked={newVendor.status}
+                    onChange={handleNewVendorDetails}
                   />
-                  <label htmlFor="marketStatus" className="tgl-btn"></label>
+                  <label htmlFor="vendorStatus" className="tgl-btn"></label>
                 </span>
               </FormLayout>
             </Card>
 
-            <Card sectioned title="Country/State">
-              <Scrollable className="Market-Edit-Countries-Scroll">
-                <CheckboxTree
-                  nodes={countriesList}
-                  checked={checkedCountries}
-                  expanded={expandedCountry}
-                  onCheck={(checked) => handleCheckedCountries(checked)}
-                  onExpand={(expanded) => setExpandedCountry(expanded)}
-                  icons={{
-                    check: <img src={FillCheckBox} alt="checkbox" />,
-                    halfCheck: (
-                      <span className="Polaris-Icon-Half-Check">
-                        <svg
-                          viewBox="0 0 20 20"
-                          className="Polaris-Icon__Svg"
-                          focusable="false"
-                          aria-hidden="true"
-                        >
-                          <path d="M14.167 9h-8.334c-.46 0-.833.448-.833 1s.372 1 .833 1h8.334c.46 0 .833-.448.833-1s-.373-1-.833-1"></path>{" "}
-                        </svg>
-                      </span>
-                    ),
-                    uncheck: <img src={EmptyCheckBox} alt="checkbox" />,
-                    expandClose: <Icon source={ChevronDownMinor} />,
-                    expandOpen: <Icon source={ChevronUpMinor} />,
-                  }}
-                />
-              </Scrollable>
-            </Card>
-
-            <Card title="Vendor Information">
-              <Card.Section
-                actions={[
-                  {
-                    content: "Manage",
-                    onAction: () => {
-                      setTagsModal(true);
+            {/* <Card title="Vendor Information">
+                <Card.Section
+                  actions={[
+                    {
+                      content: "Manage",
+                      onAction: () => {
+                        setTagsModal(true);
+                      },
                     },
-                  },
-                ]}
-              >
-                <div className="Product-Tags">
-                  <Autocomplete
-                    // actionBefore={
-                    //     console.log('Action Clicked!')
-                    // }
-                    allowMultiple
-                    options={tagOptions}
-                    selected={tagOptionsSelected}
-                    textField={tagTextField}
-                    loading={optionsLoading}
-                    onSelect={setTagOptionsSelected}
-                    listTitle="Available Vendors"
-                  />
-                  {tagsContentMarkup}
-                </div>
-              </Card.Section>
-            </Card>
+                  ]}
+                >
+                  <div className="Product-Tags">
+                    <Autocomplete
+                      // actionBefore={
+                      //     console.log('Action Clicked!')
+                      // }
+                      allowMultiple
+                      options={tagOptions}
+                      selected={tagOptionsSelected}
+                      textField={tagTextField}
+                      loading={optionsLoading}
+                      onSelect={setTagOptionsSelected}
+                      listTitle="Available Vendors"
+                    />
+                    {tagsContentMarkup}
+                  </div>
+                </Card.Section>
+              </Card> */}
           </Form>
 
           <div className="Polaris-Product-Actions">
             <br />
             <PageActions
               primaryAction={{
-                content: "Save Market",
-                onAction: handleUpdateMarket,
-                loading: btnLoading["updateMarket"],
+                content: "Save Vendor",
+                onAction: handleUpdateVendor,
+                loading: btnLoading["updateVendor"],
               }}
             />
           </div>

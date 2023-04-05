@@ -124,6 +124,13 @@ export function SuperAdminLayout({ children }) {
             icon: ProductsMinor,
             url: "/products",
             onClick: () => setLocationChange("/products"),
+            subNavigationItems: [
+              {
+                url: "/product-types",
+                onClick: () => setLocationChange("/product-types"),
+                label: "Product Types",
+              },
+            ],
           },
           {
             label: "Customers",
@@ -359,6 +366,13 @@ export function AdminLayout({ children }) {
             icon: ProductsMinor,
             url: "/products",
             onClick: () => setLocationChange("/products"),
+            subNavigationItems: [
+              {
+                url: "/product-types",
+                onClick: () => setLocationChange("/product-types"),
+                label: "Product Types",
+              },
+            ],
           },
           {
             label: "Customers",

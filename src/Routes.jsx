@@ -2,33 +2,22 @@ import React, { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import {
   Login,
-  SignUp,
   ResetPassword,
-  StoreConnect,
   Dashboard,
   Products,
   Profile,
   Customers,
-  Customization,
-  Discounts,
-  DiscountDetail,
-  DiscountCreate,
-  Integrations,
-  PaymentMethods,
-  Scripts,
   ChangePassword,
   Settings,
-  Shipping,
-  Localization,
   Orders,
-  ExtraOffers,
   Account,
-  SignUpStatus,
   Markets,
   Vendors,
   MarketDetail,
   Finances,
   Users,
+  ProductTypes,
+  VendorDetail,
 } from "./routes/admin/index";
 import NotFound from "./routes/NotFound";
 import { SuperAdminLayout, AdminLayout, VendorLayout } from "./components";
@@ -49,6 +38,7 @@ function Routes1() {
               <Route path="/change-password" element={<ChangePassword />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/products" element={<Products />} />
+              <Route path="/product-types" element={<ProductTypes />} />
               <Route path="/orders" element={<Orders />} />
               <Route path="/users" element={<Users />} />
               <Route path="/markets" element={<Markets />} />
@@ -56,6 +46,7 @@ function Routes1() {
               <Route path="/profile" element={<Profile />} />
               <Route path="/customers" element={<Customers />} />
               <Route path="/vendors" element={<Vendors />} />
+              <Route path={`/vendor/:vendorId`} element={<VendorDetail />} />
               <Route path="/finances" element={<Finances />} />
               <Route path="/settings" element={<Settings />} />
 
@@ -71,12 +62,14 @@ function Routes1() {
               <Route path="/change-password" element={<ChangePassword />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/products" element={<Products />} />
+              <Route path="/product-types" element={<ProductTypes />} />
               <Route path="/orders" element={<Orders />} />
               <Route path="/markets" element={<Markets />} />
               <Route path={`/market/:marketId`} element={<MarketDetail />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/customers" element={<Customers />} />
               <Route path="/vendors" element={<Vendors />} />
+              <Route path={`/vendor/:vendorId`} element={<VendorDetail />} />
               <Route path="/settings" element={<Settings />} />
 
               <Route path="*" element={<Navigate to="/dashboard" />} />

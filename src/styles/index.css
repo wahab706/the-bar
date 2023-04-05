@@ -1737,7 +1737,8 @@
   margin: 0;
 }
 
-.Market-Detail-Page {
+.Market-Detail-Page,
+.Vendor-Detail-Page {
   margin-bottom: 2rem;
 }
 
@@ -1747,22 +1748,4 @@
 
 .Market-Edit-Vendors-Scroll {
   max-height: 400px;
-}
-
-.Market-Detail-Page
-  .Polaris-FormLayout
-  .Polaris-FormLayout--grouped
-  .Polaris-FormLayout__Items
-  .Polaris-FormLayout__Item:first-child {
-  margin-left: 0;
-}
-
-@media (max-width: 547px) {
-  .Market-Detail-Page
-    .Polaris-FormLayout
-    .Polaris-FormLayout--grouped
-    .Polaris-FormLayout__Items
-    .Polaris-FormLayout__Item:last-child {
-    margin-left: 0;
-  }
 }
