@@ -199,16 +199,19 @@ export function Markets() {
 
         <IndexTable.Cell className="Capitalize-Cell">
           <Text variant="headingSm" as="h6">
-            {countries?.length && countries?.length > 1 ? (
-              <>
+            {countries?.length ? (
+              countries?.length > 1 ? (
+                <>
+                  <span>{countries[0].name}</span>
+                  &nbsp;
+                  <small>{`+ ${countries?.length - 1} others`}</small>
+                </>
+              ) : (
                 <span>{countries[0].name}</span>
-                &nbsp;
-                <small>{`+ ${countries?.length - 1} others`}</small>
-              </>
+              )
             ) : (
-              <span>{countries[0].name}</span>
+              "---"
             )}
-            {!countries?.length && "---"}
           </Text>
         </IndexTable.Cell>
 

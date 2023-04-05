@@ -23,6 +23,7 @@ import axios from "axios";
 const apiUrl = "https://phpstack-899754-3368767.cloudwaysapps.com";
 
 export function SuperAdminLayout({ children }) {
+  const params = useParams();
   const dispatch = useAuthDispatch();
   const { user } = useAuthState();
   const navigate = useNavigate();
@@ -143,6 +144,10 @@ export function SuperAdminLayout({ children }) {
             icon: CustomersMinor,
             url: "/vendors",
             onClick: () => setLocationChange("/vendors"),
+            selected:
+              location.pathname === "/vendors" ||
+              location.pathname ===
+                `/vendor/${location.pathname.split("/vendor/")[1]}`,
           },
           {
             label: "Users",

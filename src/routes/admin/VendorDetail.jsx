@@ -25,6 +25,7 @@ import {
   OptionList,
   Autocomplete,
   Badge,
+  Layout,
 } from "@shopify/polaris";
 import {
   SearchMinor,
@@ -37,6 +38,7 @@ import {
   InputField,
   ShowPassword,
   HidePassword,
+  CustomSelect,
   CheckBox,
   CustomBadge,
 } from "../../components";
@@ -66,6 +68,7 @@ export function VendorDetail() {
   const [discardModal, setDiscardModal] = useState(false);
   const [vendorsList, setVendorsList] = useState([]);
   const [vendorError, setVendorError] = useState();
+  const [marketsList, setMarketsList] = useState([]);
 
   const [passwordErrorMsg, setPasswordErrorMsg] = useState("");
   const [hidePassword, setHidePassword] = useState(true);
@@ -82,6 +85,7 @@ export function VendorDetail() {
     state: "",
     city: "",
     zipCode: "",
+    market_id: null,
   });
 
   const handleNewVendorDetails = (e) => {
@@ -251,31 +255,29 @@ export function VendorDetail() {
     setDiscardModal(!discardModal);
   };
 
-  const getVendorsList = async () => {
+  const getMarketsList = async () => {
     try {
       const response = await axios.post(
-        `${apiUrl}/api/vendors/list`,
+        `${apiUrl}/api/markets/list`,
         {},
         {
           headers: { Authorization: `Bearer ${getAccessToken()}` },
         }
       );
 
-      // console.log("getVendorsList response: ", response.data?.vendors);
+      // console.log("getMarketsList response: ", response.data);
       if (!response?.data?.success) {
         setToastMsg(response?.data?.message);
         setErrorToast(true);
       } else {
-        setVendorsList(response.data?.vendors);
         let list = [];
-        response.data?.vendors?.map((item) => {
+        response.data?.markets?.map((item) => {
           list.push({
             value: item.id,
             label: item.name,
           });
         });
-        // setVendorsList(list);
-        setTagOptions(list);
+        setMarketsList(list);
       }
     } catch (error) {
       console.warn("Get VendorsList Api Error", error.response);
@@ -290,7 +292,7 @@ export function VendorDetail() {
   };
 
   useEffect(() => {
-    getVendorsList();
+    getMarketsList();
   }, []);
 
   const editVendor = async (id) => {
@@ -304,7 +306,7 @@ export function VendorDetail() {
         }
       );
 
-      console.log("editVendor response: ", response.data);
+      //   console.log("editVendor response: ", response.data);
       if (!response?.data?.success) {
         setToastMsg(response?.data?.message);
         setErrorToast(true);
@@ -319,6 +321,9 @@ export function VendorDetail() {
           last_name: vendorResponse?.last_name,
           email: vendorResponse?.email,
           phone: vendorResponse?.phone,
+          market_id: vendorResponse?.market
+            ? vendorResponse?.market?.details?.id
+            : null,
           city: vendorResponse?.details?.city,
           zipCode: vendorResponse?.details?.zipCode,
           state: vendorResponse?.details?.state,
@@ -357,16 +362,23 @@ export function VendorDetail() {
 
   const handleUpdateVendorSubmit = (e) => {
     e.preventDefault();
-    updateVendor();
-    // if (tagOptionsSelected?.length) {
-    //   setVendorError();
-    //   updateVendor();
-    // } else {
-    //   if (!tagOptionsSelected?.length) {
-    //     setVendorError("Vendor");
-    //     window.scrollTo(0, 0);
-    //   }
-    // }
+    if (newVendor.password.length < 8) {
+      setPasswordErrorMsg("Password must be 8 digits long");
+      window.scrollTo(0, 400);
+    } else {
+      if (newVendor.password != newVendor.cPassword) {
+        setPasswordErrorMsg("Password must match");
+        window.scrollTo(0, 400);
+      } else {
+        if (newVendor.market_id) {
+          setVendorError();
+          updateVendor();
+        } else {
+          setVendorError("market");
+          window.scrollTo(0, 0);
+        }
+      }
+    }
   };
 
   const updateVendor = async () => {
@@ -381,16 +393,24 @@ export function VendorDetail() {
     });
 
     let data = {
-      name: newVendor.name,
-      description: newVendor.description,
-      slug: newVendor.slug,
-      toggle: convertBooleanToNumber(newVendor.status),
-      vendor_id: tagOptionsSelected,
+      first_name: newVendor.first_name,
+      last_name: newVendor.last_name,
+      email: newVendor.email,
+      phone: newVendor.phone,
+      password: newVendor.password,
+      password_confirmation: newVendor.cPassword,
+      status: convertBooleanToNumber(newVendor.status),
+      address_line1: newVendor.address_line1,
+      address_line2: newVendor.address_line2,
+      state: newVendor.state,
+      city: newVendor.city,
+      zipCode: newVendor.zipCode,
+      market_id: newVendor.market_id,
     };
 
     try {
       const response = await axios.post(
-        `${apiUrl}/api/update/market/${vendorId}`,
+        `${apiUrl}/api/vendor/update/${vendorId}`,
         data,
         {
           headers: { Authorization: `Bearer ${getAccessToken()}` },
@@ -496,11 +516,15 @@ export function VendorDetail() {
           {vendorError ? (
             <>
               <Banner
-                title="There is 1 error with this Market:"
+                title="There is 1 error with this Vendor:"
                 status="critical"
               >
                 <List>
-                  <List.Item>Specific {vendorError} must be added</List.Item>
+                  {vendorError == "market" ? (
+                    <List.Item>Market must be selected</List.Item>
+                  ) : (
+                    <List.Item>Specific {vendorError} must be added</List.Item>
+                  )}
                 </List>
               </Banner>
               <br />
@@ -515,6 +539,11 @@ export function VendorDetail() {
                 Submit
               </Button>
             </span>
+
+            {/* <Layout>
+              <Layout.Section></Layout.Section>
+              <Layout.Section oneThird></Layout.Section>
+            </Layout> */}
 
             <Card sectioned title="General Information">
               <FormLayout>
@@ -680,6 +709,16 @@ export function VendorDetail() {
                   <label htmlFor="vendorStatus" className="tgl-btn"></label>
                 </span>
               </FormLayout>
+            </Card>
+
+            <Card title="Select Market" sectioned>
+              <CustomSelect
+                label="Select Vendor Market"
+                name="market_id"
+                value={newVendor.market_id}
+                onChange={handleNewVendorDetails}
+                options={marketsList}
+              />
             </Card>
 
             {/* <Card title="Vendor Information">

@@ -192,7 +192,7 @@ export function Vendors() {
   };
 
   const rowMarkup = vendors?.map(
-    ({ id, first_name, last_name, email, phone, status }, index) => (
+    ({ id, first_name, last_name, email, phone, status, market }, index) => (
       <IndexTable.Row
         id={id}
         key={id}
@@ -204,7 +204,9 @@ export function Vendors() {
             {first_name} {last_name}
           </Text>
         </IndexTable.Cell>
-
+        <IndexTable.Cell>
+          {market ? market?.details?.name : "---"}
+        </IndexTable.Cell>
         <IndexTable.Cell>{phone ? phone : "---"}</IndexTable.Cell>
         <IndexTable.Cell>{email ? email : "---"}</IndexTable.Cell>
 
@@ -754,6 +756,7 @@ export function Vendors() {
                     emptyState={emptyStateMarkup}
                     headings={[
                       { title: "Name" },
+                      { title: "Market" },
                       { title: "Phone" },
                       { title: "Email" },
                       { title: "Active/Draft" },

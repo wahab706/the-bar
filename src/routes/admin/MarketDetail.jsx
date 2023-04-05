@@ -386,7 +386,6 @@ export function MarketDetail() {
             label: item.name,
           });
         });
-        // setVendorsList(list);
         setTagOptions(list);
       }
     } catch (error) {
@@ -552,7 +551,7 @@ export function MarketDetail() {
   };
 
   return (
-    <div className=" Market-Detail-Page">
+    <div className="  Market-Detail-Page">
       <Modal
         open={discardModal}
         onClose={handleDiscardModal}
